@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A beginner-friendly, Mac-first interactive tutorial: Git clone vs fork, GitHub collaboration, pull requests, and automatic Vercel deployments.">
+  <title>From Mac to Live Website — Git, GitHub &amp; Vercel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+          },
+          colors: {
+            canvas: '#09090b',
+            surface: '#18181b',
+            elevated: '#27272a'
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --elevated: #27272a;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --indigo: #818cf8;
+      --violet: #c4b5fd;
+      --emerald: #34d399;
+      --cyan: #22d3ee;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 32px;
+      --space-8: 48px;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: clip;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 12px;
+      top: -48px;
+      z-index: 100;
+      background: #818cf8;
+      color: #09090b;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .skip-link:focus { top: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 2px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .card-lg { padding: 24px; }
+
+    .takeaway {
+      background: linear-gradient(180deg, rgba(129, 140, 248, 0.12), rgba(24, 24, 27, 0.6));
+      border: 1px solid rgba(129, 140, 248, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+    }
+
+    .kbd {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 2px 8px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #27272a;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      color: #fafafa;
+    }
+
+    .term {
+      background: #0c0c0e;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .term-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #141416;
+      border-bottom: 1px solid var(--border);
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-body {
+      padding: 16px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e4e4e7;
+      overflow-x: auto;
+    }
+    .prompt { color: #34d399; }
+    .cmd-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .cmd-row p {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .term, .term-body, .card, .flow-node, .gh-chrome {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .copy-btn {
+      flex-shrink: 0;
+      min-height: 36px;
+      min-width: 72px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #18181b;
+      color: #d4d4d8;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .copy-btn:hover { background: #27272a; color: #fafafa; }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #71717a;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    @media (min-width: 768px) {
+      .flow-h {
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .flow-h > .flow-node { flex: 1; min-width: 0; }
+      .flow-h > .flow-arrow { writing-mode: horizontal-tb; min-width: 28px; }
+    }
+
+    .chapter-link {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: #a1a1aa;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .chapter-link:hover { background: #18181b; color: #fafafa; }
+    .chapter-link[aria-current="true"] {
+      background: rgba(129, 140, 248, 0.12);
+      color: #c7d2fe;
+    }
+
+    .journey-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid #52525b;
+      background: transparent;
+    }
+    .journey-dot.done {
+      background: #34d399;
+      border-color: #34d399;
+    }
+
+    .tab-btn[aria-selected="true"] {
+      background: #27272a;
+      color: #fafafa;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .gh-chrome { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; }
+    .diff-add { background: rgba(52, 211, 153, 0.12); color: #6ee7b7; }
+
+    .quiz-option {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #18181b;
+      color: #fafafa;
+    }
+    .quiz-option:hover { background: #27272a; }
+    .quiz-option.is-correct { border-color: rgba(52, 211, 153, 0.5); background: rgba(52, 211, 153, 0.08); }
+    .quiz-option.is-wrong { border-color: rgba(251, 113, 133, 0.5); background: rgba(251, 113, 133, 0.08); }
+
+    .sim-node {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--surface);
+      min-height: 96px;
+    }
+    .sim-node.is-active { border-color: rgba(34, 211, 238, 0.5); }
+    .sim-node.is-done { border-color: rgba(52, 211, 153, 0.5); }
+
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th, .compare-table td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .compare-table th { color: #a1a1aa; font-weight: 600; font-size: 13px; }
+    @media (max-width: 700px) {
+      .compare-table, .compare-table thead, .compare-table tbody, .compare-table th, .compare-table td, .compare-table tr {
+        display: block;
+      }
+      .compare-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .compare-table tr { margin-bottom: 16px; border: 1px solid var(--border); border-radius: 12px; padding: 8px 0; background: var(--surface); }
+      .compare-table td { border: 0; padding: 8px 14px; }
+      .compare-table td::before {
+        content: attr(data-label);
+        display: block;
+        color: #a1a1aa;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+    }
+
+    .arch-node[aria-pressed="true"] {
+      border-color: rgba(129, 140, 248, 0.55);
+      background: rgba(129, 140, 248, 0.08);
+    }
+
+    .font-mono, code, pre { overflow-wrap: anywhere; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-canvas text-zinc-50 antialiased">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-zinc-950/90 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-200" aria-hidden="true"><i data-lucide="pizza" class="h-5 w-5"></i></span>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Interactive tutorial · macOS</p>
+          <p class="text-sm text-zinc-300">Pizza Recipe Website · Git · GitHub · Vercel</p>
+        </div>
+      </div>
+      <div class="min-w-0">
+        <p id="journey-label" class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Your Git Journey</p>
+        <ol class="flex gap-x-3 gap-y-2 overflow-x-auto pb-1 lg:flex-wrap" aria-labelledby="journey-label">
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="mac-setup" aria-hidden="true"></span>Mac Setup</li>
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="clone" aria-hidden="true"></span>Clone</li>
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="commit" aria-hidden="true"></span>Commit</li>
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="push" aria-hidden="true"></span>Push</li>
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="fork" aria-hidden="true"></span>Fork</li>
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="pr" aria-hidden="true"></span>Pull Request</li>
+          <li class="flex items-center gap-2 text-xs text-zinc-400"><span class="journey-dot" data-step="deploy" aria-hidden="true"></span>Deploy</li>
+        </ol>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+    <aside class="lg:sticky lg:top-28 lg:self-start">
+      <div class="mb-3 lg:hidden">
+        <label for="chapter-select" class="mb-1 block text-sm font-medium text-zinc-300">Jump to chapter</label>
+        <select id="chapter-select" class="w-full rounded-xl border border-white/10 bg-zinc-900 px-3 py-2.5 text-sm text-zinc-50">
+          <option value="mental-model">1. Mental Model</option>
+          <option value="meet-the-team">2. Meet the Team</option>
+          <option value="mac-setup">3. Mac Setup</option>
+          <option value="clone-vs-fork">4. Clone vs Fork</option>
+          <option value="team-workflow">5. Team Workflow</option>
+          <option value="fork-workflow">6. Fork Workflow</option>
+          <option value="branches">7. Branches</option>
+          <option value="pull-requests">8. Pull Requests</option>
+          <option value="origin-upstream">9. Origin &amp; Upstream</option>
+          <option value="github-vercel">10. GitHub → Vercel</option>
+          <option value="auto-deploy">11. Automatic Deployments</option>
+          <option value="preview-production">12. Preview vs Production</option>
+          <option value="architecture">13. Complete Architecture</option>
+          <option value="mistakes">14. Common Mistakes</option>
+          <option value="quiz">15. Quiz</option>
+          <option value="cheat-sheet">16. Cheat Sheet</option>
+        </select>
+      </div>
+      <nav aria-label="Chapters" class="hidden lg:block">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Chapters</p>
+        <ol class="space-y-0.5">
+          <li><a class="chapter-link" href="#mental-model">1. Mental Model</a></li>
+          <li><a class="chapter-link" href="#meet-the-team">2. Meet the Team</a></li>
+          <li><a class="chapter-link" href="#mac-setup">3. Mac Setup</a></li>
+          <li><a class="chapter-link" href="#clone-vs-fork">4. Clone vs Fork</a></li>
+          <li><a class="chapter-link" href="#team-workflow">5. Team Workflow</a></li>
+          <li><a class="chapter-link" href="#fork-workflow">6. Fork Workflow</a></li>
+          <li><a class="chapter-link" href="#branches">7. Branches</a></li>
+          <li><a class="chapter-link" href="#pull-requests">8. Pull Requests</a></li>
+          <li><a class="chapter-link" href="#origin-upstream">9. Origin &amp; Upstream</a></li>
+          <li><a class="chapter-link" href="#github-vercel">10. GitHub → Vercel</a></li>
+          <li><a class="chapter-link" href="#auto-deploy">11. Automatic Deployments</a></li>
+          <li><a class="chapter-link" href="#preview-production">12. Preview vs Production</a></li>
+          <li><a class="chapter-link" href="#architecture">13. Complete Architecture</a></li>
+          <li><a class="chapter-link" href="#mistakes">14. Common Mistakes</a></li>
+          <li><a class="chapter-link" href="#quiz">15. Quiz</a></li>
+          <li><a class="chapter-link" href="#cheat-sheet">16. Cheat Sheet</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <main id="main" class="min-w-0 space-y-16 pb-24">
+      <section id="mental-model" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 1</p>
+        <h1 class="max-w-4xl text-3xl font-extrabold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl">From a Mac folder to a live pizza website</h1>
+        <p class="mt-4 max-w-2xl text-lg text-zinc-300">This tutorial teaches one complete path. You will not need Git vocabulary in advance. Every term is introduced when you need it.</p>
+
+        <div class="flow flow-h mt-10">
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-indigo-300" aria-hidden="true"><i data-lucide="laptop" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-indigo-300">Local</p><p class="mt-1 font-semibold">Mac</p></div>
+          <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-indigo-300" aria-hidden="true"><i data-lucide="folder" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-indigo-300">Files</p><p class="mt-1 font-semibold">Local folder</p></div>
+          <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-emerald-300" aria-hidden="true"><i data-lucide="git-commit" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-emerald-300">History</p><p class="mt-1 font-semibold">Git</p></div>
+          <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-violet-300" aria-hidden="true"><i data-lucide="github" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-violet-300">Remote</p><p class="mt-1 font-semibold">GitHub</p></div>
+          <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-violet-300" aria-hidden="true"><i data-lucide="git-pull-request" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-violet-300">Review</p><p class="mt-1 font-semibold">Pull Request</p></div>
+          <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-cyan-300" aria-hidden="true"><i data-lucide="rocket" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-cyan-300">Deploy</p><p class="mt-1 font-semibold">Vercel</p></div>
+          <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+          <div class="flow-node card text-center"><p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-emerald-300" aria-hidden="true"><i data-lucide="globe" class="h-5 w-5"></i></p><p class="text-xs uppercase tracking-wide text-emerald-300">Public</p><p class="mt-1 font-semibold">Live website</p></div>
+        </div>
+
+        <div class="mt-8 grid gap-4 sm:grid-cols-3">
+          <article class="card">
+            <h2 class="text-base font-semibold">What Git is</h2>
+            <p class="mt-2 text-sm text-zinc-400">Git is software on your Mac that saves checkpoints of your project. It remembers what changed, when, and who saved it.</p>
+          </article>
+          <article class="card">
+            <h2 class="text-base font-semibold">What GitHub is</h2>
+            <p class="mt-2 text-sm text-zinc-400">GitHub is a website that hosts Git projects so people can share, review, and collaborate. Git lives on your computer. GitHub lives on the internet.</p>
+          </article>
+          <article class="card">
+            <h2 class="text-base font-semibold">What a repository is</h2>
+            <p class="mt-2 text-sm text-zinc-400">A repository (repo) is the project’s files plus their Git history. A <strong class="text-zinc-200">local</strong> repo is on your Mac. A <strong class="text-zinc-200">remote</strong> repo is hosted on GitHub.</p>
+          </article>
+        </div>
+
+        <div class="takeaway mt-8">
+          <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Core takeaway</p>
+          <p class="mt-2 text-xl font-semibold tracking-tight">YOUR MAC → Git → GITHUB → VERCEL → LIVE WEBSITE</p>
+          <p class="mt-3 text-zinc-300">Code locally. Version it with Git. Store and collaborate through GitHub. Deploy through Vercel.</p>
+        </div>
+      </section>
+
+      <section id="meet-the-team" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 2</p>
+        <h2 class="text-3xl font-bold tracking-tight">Meet the pizza team</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">The whole tutorial uses one fun project: a Pizza Recipe Website. Three people work on it in different ways. Their GitHub permissions decide what they are allowed to do.</p>
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+          <article class="card">
+            <div class="flex items-center gap-3">
+              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-200" aria-hidden="true"><i data-lucide="crown" class="h-5 w-5"></i></span>
+              <div>
+                <h3 class="text-lg font-semibold">Ani</h3>
+                <p class="text-sm text-zinc-400">Project Owner / Lead</p>
+              </div>
+            </div>
+            <p class="mt-4 text-sm text-zinc-300">Owns <code class="font-mono text-indigo-200">ani/pizza-recipe</code>. Created the original website and the main GitHub repository.</p>
+            <p class="mt-3 inline-flex rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-200">Owner · Full Access</p>
+          </article>
+          <article class="card">
+            <div class="flex items-center gap-3">
+              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200" aria-hidden="true"><i data-lucide="users" class="h-5 w-5"></i></span>
+              <div>
+                <h3 class="text-lg font-semibold">Samriti</h3>
+                <p class="text-sm text-zinc-400">Team Member / Direct Collaborator</p>
+              </div>
+            </div>
+            <p class="mt-4 text-sm text-zinc-300">Ani invited Samriti as a GitHub collaborator. She can clone Ani’s repository and push changes because she has write permission.</p>
+            <p class="mt-3 inline-flex rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">Collaborator · Write Access</p>
+          </article>
+          <article class="card">
+            <div class="flex items-center gap-3">
+              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-violet-500/20 text-violet-200" aria-hidden="true"><i data-lucide="git-fork" class="h-5 w-5"></i></span>
+              <div>
+                <h3 class="text-lg font-semibold">Mishthi</h3>
+                <p class="text-sm text-zinc-400">External / Independent Contributor</p>
+              </div>
+            </div>
+            <p class="mt-4 text-sm text-zinc-300">Finds the project on GitHub but cannot push to Ani’s repo. She must fork, clone her fork, then open a pull request.</p>
+            <p class="mt-3 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-200">Contributor · No Direct Write Access</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="mac-setup" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 3</p>
+        <h2 class="text-3xl font-bold tracking-tight">Prepare your Mac for Git development</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">Before cloning anything, confirm Terminal, Git, and your identity work on this Mac.</p>
+
+        <div class="mt-8 grid gap-4">
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Step 1</p>
+            <h3 class="mt-1 text-xl font-semibold">Open Terminal</h3>
+            <ol class="mt-3 list-decimal space-y-1 pl-5 text-zinc-300">
+              <li>Press <span class="kbd">Command</span> + <span class="kbd">Space</span></li>
+              <li>Search for <strong>Terminal</strong></li>
+              <li>Press <span class="kbd">Enter</span></li>
+            </ol>
+            <div class="term mt-5" role="img" aria-label="Fake macOS Terminal window">
+              <div class="term-bar">
+                <span class="term-dot bg-rose-400"></span>
+                <span class="term-dot bg-amber-300"></span>
+                <span class="term-dot bg-emerald-400"></span>
+                <span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span>
+              </div>
+              <div class="term-body">
+                <p><span class="prompt">samriti@MacBook-Pro ~ %</span> <span class="text-zinc-500">_</span></p>
+              </div>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Step 2</p>
+            <h3 class="mt-1 text-xl font-semibold">Check Git</h3>
+            <p class="mt-2 text-zinc-300">Git is the tool that records checkpoints of your project on this Mac.</p>
+            <div class="term mt-4">
+              <div class="term-bar">
+                <span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span>
+                <span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span>
+              </div>
+              <div class="term-body">
+                <div class="cmd-row">
+                  <p><span class="prompt">samriti@MacBook-Pro ~ %</span> git --version</p>
+                  <button type="button" class="copy-btn" data-copy="git --version">Copy</button>
+                </div>
+                <p class="text-zinc-500">git version 2.47.0</p>
+              </div>
+            </div>
+            <p class="mt-3 text-sm text-amber-200">If macOS says Git is unavailable, install Git before continuing. You only need a working <code class="font-mono">git --version</code> result.</p>
+          </article>
+
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Step 3</p>
+            <h3 class="mt-1 text-xl font-semibold">Check current folder</h3>
+            <p class="mt-2 text-zinc-300"><code class="font-mono text-indigo-200">pwd</code> means “Where am I on my Mac?”</p>
+            <div class="term mt-4">
+              <div class="term-bar">
+                <span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span>
+                <span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span>
+              </div>
+              <div class="term-body">
+                <div class="cmd-row">
+                  <p><span class="prompt">samriti@MacBook-Pro ~ %</span> pwd</p>
+                  <button type="button" class="copy-btn" data-copy="pwd">Copy</button>
+                </div>
+                <p class="text-zinc-400">/Users/samriti</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Step 4</p>
+            <h3 class="mt-1 text-xl font-semibold">Create a Projects folder</h3>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div class="rounded-xl border border-white/10 bg-zinc-900 p-4">
+                <p class="font-mono text-sm text-indigo-200">mkdir Projects</p>
+                <p class="mt-2 text-sm text-zinc-400">Make a new folder named Projects.</p>
+              </div>
+              <div class="rounded-xl border border-white/10 bg-zinc-900 p-4">
+                <p class="font-mono text-sm text-indigo-200">cd Projects</p>
+                <p class="mt-2 text-sm text-zinc-400">Move into that folder. cd = change directory.</p>
+              </div>
+            </div>
+            <div class="term mt-4">
+              <div class="term-bar">
+                <span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span>
+                <span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span>
+              </div>
+              <div class="term-body space-y-1">
+                <div class="cmd-row"><p><span class="prompt">samriti@MacBook-Pro ~ %</span> mkdir Projects</p><button type="button" class="copy-btn" data-copy="mkdir Projects">Copy</button></div>
+                <div class="cmd-row"><p><span class="prompt">samriti@MacBook-Pro ~ %</span> cd Projects</p><button type="button" class="copy-btn" data-copy="cd Projects">Copy</button></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Step 5</p>
+            <h3 class="mt-1 text-xl font-semibold">Configure Git identity</h3>
+            <p class="mt-2 text-zinc-300">Every commit records who created the change. Set your name and email once on this Mac.</p>
+            <div class="term mt-4">
+              <div class="term-bar">
+                <span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span>
+                <span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span>
+              </div>
+              <div class="term-body space-y-2">
+                <div class="cmd-row"><p>git config --global user.name "Samriti"</p><button type="button" class="copy-btn" data-copy='git config --global user.name "Samriti"'>Copy</button></div>
+                <div class="cmd-row"><p>git config --global user.email "samriti@example.com"</p><button type="button" class="copy-btn" data-copy='git config --global user.email "samriti@example.com"'>Copy</button></div>
+                <div class="cmd-row"><p>git config --global --list</p><button type="button" class="copy-btn" data-copy="git config --global --list">Copy</button></div>
+                <p class="text-zinc-500">user.name=Samriti<br>user.email=samriti@example.com</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="clone-vs-fork" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 4</p>
+        <h2 class="text-3xl font-bold tracking-tight">Clone vs Fork</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">These are not two ways to do the same job. Clone copies a repository onto your Mac. Fork copies a GitHub repository into your GitHub account.</p>
+
+        <div class="mt-8 grid gap-4 lg:grid-cols-2">
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Git Clone</p>
+            <h3 class="mt-1 text-xl font-semibold">GitHub → your Mac</h3>
+            <p class="mt-2 text-zinc-300">Clone answers: “How do I get this repository onto my Mac?”</p>
+            <div class="mt-4 space-y-2 text-center font-mono text-sm">
+              <div class="rounded-xl border border-violet-400/20 bg-violet-500/10 p-3">GitHub<br><span class="text-violet-200">ani/pizza-recipe</span></div>
+              <p class="text-zinc-500">↓ git clone</p>
+              <div class="rounded-xl border border-indigo-400/20 bg-indigo-500/10 p-3">MacBook<br><span class="text-indigo-200">pizza-recipe/</span></div>
+            </div>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body">
+                <div class="cmd-row"><p>git clone https://github.com/ani/pizza-recipe.git</p><button type="button" class="copy-btn" data-copy="git clone https://github.com/ani/pizza-recipe.git">Copy</button></div>
+              </div>
+            </div>
+            <p class="mt-3 text-sm text-amber-200">Cloning does not automatically give you permission to push. Anyone who can read a repository may be able to clone it. Pushing depends on GitHub permissions.</p>
+          </article>
+          <article class="card card-lg">
+            <p class="text-xs font-semibold uppercase tracking-wider text-violet-300">GitHub Fork</p>
+            <h3 class="mt-1 text-xl font-semibold">GitHub → your GitHub</h3>
+            <p class="mt-2 text-zinc-300">Fork answers: “How do I create my own GitHub copy of someone else’s repository?”</p>
+            <div class="mt-4 space-y-2 text-center font-mono text-sm">
+              <div class="rounded-xl border border-violet-400/20 bg-violet-500/10 p-3">Original<br><span class="text-violet-200">github.com/ani/pizza-recipe</span></div>
+              <p class="text-zinc-500">↓ FORK</p>
+              <div class="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3">Mishthi’s GitHub<br><span class="text-cyan-200">github.com/mishthi/pizza-recipe</span></div>
+              <p class="text-zinc-500">↓ clone</p>
+              <div class="rounded-xl border border-indigo-400/20 bg-indigo-500/10 p-3">Mishthi’s Mac<br><span class="text-indigo-200">pizza-recipe/</span></div>
+            </div>
+            <p class="mt-3 text-sm text-zinc-400">After forking, Mishthi still clones her fork to the Mac before editing locally.</p>
+          </article>
+        </div>
+
+        <div class="takeaway mt-8">
+          <p class="text-xl font-semibold">Fork happens on GitHub. Clone happens from GitHub to your Mac.</p>
+        </div>
+      </section>
+
+      <section id="team-workflow" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 5</p>
+        <h2 class="text-3xl font-bold tracking-tight">Team workflow: Clone → Edit → Commit → Push</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">Scenario A is Ani + Samriti. Samriti has write access, so she clones Ani’s repository and can push. This simplified path demonstrates permissions. Many teams still use branches and pull requests even for collaborators.</p>
+
+        <div class="mt-6" role="tablist" aria-label="Collaboration workflows">
+          <div class="inline-flex rounded-xl border border-white/10 bg-zinc-900 p-1">
+            <button type="button" class="tab-btn rounded-lg px-4 py-2 text-sm font-semibold text-zinc-400" role="tab" id="tab-team" aria-controls="panel-team" aria-selected="true">Team Workflow</button>
+            <button type="button" class="tab-btn rounded-lg px-4 py-2 text-sm font-semibold text-zinc-400" role="tab" id="tab-oss" aria-controls="panel-oss" aria-selected="false">Open Source Workflow</button>
+          </div>
+        </div>
+
+        <div id="panel-team" role="tabpanel" aria-labelledby="tab-team" class="mt-6 space-y-8">
+          <div class="space-y-3">
+            <div class="card">
+              <p class="text-xs uppercase tracking-wide text-violet-300">GitHub</p>
+              <p class="font-semibold">ani/pizza-recipe</p>
+              <p class="text-sm text-zinc-400">Ani: Owner · Samriti: Collaborator</p>
+            </div>
+            <p class="text-center text-xs font-semibold uppercase tracking-wide text-zinc-500">git clone</p>
+            <div class="card">
+              <p class="text-xs uppercase tracking-wide text-indigo-300">Samriti’s Mac</p>
+              <p class="font-mono text-sm">~/Projects/pizza-recipe</p>
+            </div>
+            <p class="text-center text-xs font-semibold uppercase tracking-wide text-zinc-500">edit · commit · push</p>
+            <div class="card">
+              <p class="text-xs uppercase tracking-wide text-emerald-300">GitHub updated</p>
+              <p class="font-semibold">ani/pizza-recipe</p>
+            </div>
+          </div>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A1: Ani gives permission</h3>
+            <p class="mt-2 font-mono text-sm text-zinc-300">Ani → GitHub Repository → Settings → Collaborators → Invite Samriti</p>
+            <div class="takeaway mt-4">
+              <p class="font-semibold">Permission controls PUSH, not CLONE.</p>
+              <p class="mt-2 text-sm text-zinc-300">Samriti could clone a public repo without being invited. The invite is what lets her push to Ani’s GitHub repository.</p>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A2: Samriti clones the repository</h3>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body space-y-1">
+                <div class="cmd-row"><p>cd ~/Projects</p><button type="button" class="copy-btn" data-copy="cd ~/Projects">Copy</button></div>
+                <div class="cmd-row"><p>git clone https://github.com/ani/pizza-recipe.git</p><button type="button" class="copy-btn" data-copy="git clone https://github.com/ani/pizza-recipe.git">Copy</button></div>
+                <div class="cmd-row"><p>cd pizza-recipe</p><button type="button" class="copy-btn" data-copy="cd pizza-recipe">Copy</button></div>
+              </div>
+            </div>
+            <div class="mt-4 rounded-xl border border-white/10 bg-zinc-900 p-4 font-mono text-sm text-zinc-300" role="img" aria-label="Finder-style folder tree">
+              <p>Projects</p>
+              <p class="pl-4">└── pizza-recipe</p>
+              <p class="pl-10">├── index.html</p>
+              <p class="pl-10">├── README.md</p>
+              <p class="pl-10">└── recipes</p>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A3: Understand origin</h3>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body">
+                <div class="cmd-row"><p>git remote -v</p><button type="button" class="copy-btn" data-copy="git remote -v">Copy</button></div>
+                <p class="mt-2 text-zinc-400">origin  https://github.com/ani/pizza-recipe.git</p>
+              </div>
+            </div>
+            <p class="mt-3 text-zinc-300"><strong>origin</strong> is the GitHub repository this local project normally communicates with.</p>
+            <div class="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+              <div class="card text-center"><p class="text-xs text-indigo-300">LOCAL MAC</p><p class="font-mono text-sm">pizza-recipe</p></div>
+              <p class="text-center text-sm text-zinc-500">← origin →</p>
+              <div class="card text-center"><p class="text-xs text-violet-300">GITHUB</p><p class="font-mono text-sm">ani/pizza-recipe</p></div>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A4: Make a change</h3>
+            <p class="mt-2 text-zinc-300"><code class="font-mono text-indigo-200">touch</code> creates a new empty file.</p>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body space-y-1">
+                <div class="cmd-row"><p>touch extras.txt</p><button type="button" class="copy-btn" data-copy="touch extras.txt">Copy</button></div>
+                <div class="cmd-row"><p>git status</p><button type="button" class="copy-btn" data-copy="git status">Copy</button></div>
+              </div>
+            </div>
+            <p class="mt-3 text-sm text-zinc-400">Check <code class="font-mono">git status</code> often. It tells you what Git sees right now.</p>
+          </article>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A5: Stage</h3>
+            <p class="mt-2 text-zinc-300">Staging means selecting changes for the next commit.</p>
+            <div class="flow flow-h mt-4">
+              <div class="flow-node card text-center">Modified files</div>
+              <div class="flow-arrow"><span class="md:hidden">↓ git add .</span><span class="hidden md:inline">git add . →</span></div>
+              <div class="flow-node card text-center">Staging area</div>
+            </div>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body"><div class="cmd-row"><p>git add .</p><button type="button" class="copy-btn" data-copy="git add .">Copy</button></div></div>
+            </div>
+          </article>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A6: Commit</h3>
+            <p class="mt-2 text-zinc-300">A commit is a saved checkpoint in Git history. It is still on Samriti’s Mac until she pushes.</p>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body"><div class="cmd-row"><p>git commit -m "Add extra pizza toppings"</p><button type="button" class="copy-btn" data-copy='git commit -m "Add extra pizza toppings"'>Copy</button></div></div>
+            </div>
+            <ol class="mt-4 space-y-2 border-l-2 border-emerald-400/40 pl-4 text-sm text-zinc-300">
+              <li>● Initial website</li>
+              <li>● Add pizza recipes</li>
+              <li>● Add extra pizza toppings</li>
+            </ol>
+          </article>
+
+          <article class="card card-lg">
+            <h3 class="text-xl font-semibold">Step A7: Push</h3>
+            <p class="mt-2 text-zinc-300"><strong>push</strong> sends committed changes. <strong>origin</strong> is the destination remote. <strong>main</strong> is the destination branch.</p>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+              <div class="term-body"><div class="cmd-row"><p>git push origin main</p><button type="button" class="copy-btn" data-copy="git push origin main">Copy</button></div></div>
+            </div>
+            <div class="mt-4 space-y-2 text-center">
+              <div class="card">Samriti’s Mac</div>
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">git push</p>
+              <div class="card">GitHub · ani/pizza-recipe</div>
+            </div>
+          </article>
+
+          <article class="card card-lg border-rose-400/30">
+            <h3 class="text-xl font-semibold text-rose-200">Permission error example</h3>
+            <p class="mt-2 text-zinc-300">Suppose Mishthi cloned Ani’s repository directly and tried <code class="font-mono">git push origin main</code>.</p>
+            <div class="term mt-4">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — mishthi@MacBook-Pro</span></div>
+              <div class="term-body">
+                <p>git push origin main</p>
+                <p class="mt-2 text-rose-300">remote: Permission to ani/pizza-recipe denied.</p>
+                <p class="text-rose-300">fatal: unable to access repository</p>
+              </div>
+            </div>
+            <div class="takeaway mt-4">
+              <p class="text-xl font-semibold">Clone ≠ Permission</p>
+              <p class="mt-2 text-zinc-300">Mishthi has the files locally, but she does not own the GitHub repository and has not been granted write access. She should use a Fork + Pull Request workflow.</p>
+            </div>
+          </article>
+        </div>
+
+        <div id="panel-oss" role="tabpanel" aria-labelledby="tab-oss" hidden class="mt-6">
+          <p class="text-zinc-300">Mishthi is an external contributor. She does not push to Ani’s repository. Jump to the fork workflow below, or use this timeline as a map.</p>
+          <ol class="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-9">
+            <li class="card text-center text-sm font-semibold">Fork</li>
+            <li class="card text-center text-sm font-semibold">Clone</li>
+            <li class="card text-center text-sm font-semibold">Branch</li>
+            <li class="card text-center text-sm font-semibold">Edit</li>
+            <li class="card text-center text-sm font-semibold">Commit</li>
+            <li class="card text-center text-sm font-semibold">Push</li>
+            <li class="card text-center text-sm font-semibold">Pull Request</li>
+            <li class="card text-center text-sm font-semibold">Review</li>
+            <li class="card text-center text-sm font-semibold">Merge</li>
+          </ol>
+          <p class="mt-4"><a class="font-semibold text-indigo-300 underline" href="#fork-workflow">Continue with Scenario B</a></p>
+        </div>
+      </section>
+
+      <section id="fork-workflow" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 6</p>
+        <h2 class="text-3xl font-bold tracking-tight">Open source workflow</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">Scenario B is Mishthi’s path: Fork → Clone → Branch → Edit → Commit → Push → Pull Request → Review → Merge.</p>
+        <ol class="mt-6 flex flex-col gap-3 md:flex-row md:flex-wrap">
+          <li class="card flex-1 text-center text-sm font-semibold">Fork</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Clone</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Branch</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Edit</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Commit</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Push</li>
+          <li class="card flex-1 text-center text-sm font-semibold">PR</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Review</li>
+          <li class="card flex-1 text-center text-sm font-semibold">Merge</li>
+        </ol>
+
+        <article class="card card-lg mt-8">
+          <h3 class="text-xl font-semibold">Step B1: Fork</h3>
+          <div class="gh-chrome mt-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <p class="font-semibold text-zinc-100">ani / pizza-recipe</p>
+              <div class="flex flex-wrap gap-2 text-sm">
+                <span class="rounded-lg border border-white/10 px-3 py-1 text-zinc-400">Star</span>
+                <span class="rounded-lg border border-white/10 px-3 py-1 text-zinc-400">Watch</span>
+                <button type="button" id="fork-btn" class="min-h-9 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 font-semibold text-emerald-200">Fork</button>
+              </div>
+            </div>
+            <p id="fork-result" class="px-4 py-3 text-sm text-zinc-400" aria-live="polite">Mishthi clicks Fork. Result: a new GitHub repository under her account.</p>
+          </div>
+          <div class="mt-4 space-y-2 text-center">
+            <div class="card">Ani's GitHub · ani/pizza-recipe</div>
+            <p class="text-xs font-semibold uppercase text-zinc-500">Fork</p>
+            <div class="card">Mishthi's GitHub · mishthi/pizza-recipe</div>
+          </div>
+        </article>
+
+        <article class="card card-lg mt-4">
+          <h3 class="text-xl font-semibold">Step B2: Clone Mishthi’s fork</h3>
+          <div class="term mt-4">
+            <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — mishthi@MacBook-Pro</span></div>
+            <div class="term-body space-y-1">
+              <div class="cmd-row"><p>cd ~/Projects</p><button type="button" class="copy-btn" data-copy="cd ~/Projects">Copy</button></div>
+              <div class="cmd-row"><p>git clone https://github.com/mishthi/pizza-recipe.git</p><button type="button" class="copy-btn" data-copy="git clone https://github.com/mishthi/pizza-recipe.git">Copy</button></div>
+              <div class="cmd-row"><p>cd pizza-recipe</p><button type="button" class="copy-btn" data-copy="cd pizza-recipe">Copy</button></div>
+            </div>
+          </div>
+          <div class="mt-4 space-y-2 text-center text-sm">
+            <div class="card">Ani GitHub</div>
+            <p class="text-zinc-500">Fork</p>
+            <div class="card">Mishthi GitHub</div>
+            <p class="text-zinc-500">Clone</p>
+            <div class="card">Mishthi Mac</div>
+          </div>
+        </article>
+      </section>
+
+      <section id="branches" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 7</p>
+        <h2 class="text-3xl font-bold tracking-tight">Branches</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">A branch lets Mishthi work safely without changing the main version immediately. Beginners should not always work directly on <code class="font-mono">main</code>.</p>
+        <div class="term mt-6">
+          <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — mishthi@MacBook-Pro</span></div>
+          <div class="term-body"><div class="cmd-row"><p>git switch -c garlic-crust</p><button type="button" class="copy-btn" data-copy="git switch -c garlic-crust">Copy</button></div></div>
+        </div>
+        <div class="card mt-6 overflow-x-auto">
+          <svg viewBox="0 0 420 140" class="h-36 w-full min-w-[280px]" role="img" aria-labelledby="branch-title">
+            <title id="branch-title">main branch continues, garlic-crust branches off</title>
+            <line x1="20" y1="40" x2="300" y2="40" stroke="#34d399" stroke-width="3"/>
+            <circle cx="40" cy="40" r="8" fill="#34d399"/>
+            <circle cx="140" cy="40" r="8" fill="#34d399"/>
+            <circle cx="240" cy="40" r="8" fill="#34d399"/>
+            <path d="M240 40 C 260 40, 270 90, 300 90" fill="none" stroke="#a78bfa" stroke-width="3"/>
+            <circle cx="320" cy="90" r="8" fill="#a78bfa"/>
+            <circle cx="380" cy="90" r="8" fill="#a78bfa"/>
+            <text x="250" y="28" fill="#a1a1aa" font-size="14">main</text>
+            <text x="300" y="124" fill="#c4b5fd" font-size="14">garlic-crust</text>
+          </svg>
+        </div>
+        <article class="card card-lg mt-4">
+          <h3 class="text-xl font-semibold">Edit + commit on the branch</h3>
+          <p class="mt-2 text-sm text-zinc-400">Working directory → Staging area → Commit</p>
+          <div class="term mt-4">
+            <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — mishthi@MacBook-Pro</span></div>
+            <div class="term-body space-y-1">
+              <div class="cmd-row"><p>touch garlic-crust.txt</p><button type="button" class="copy-btn" data-copy="touch garlic-crust.txt">Copy</button></div>
+              <div class="cmd-row"><p>git status</p><button type="button" class="copy-btn" data-copy="git status">Copy</button></div>
+              <div class="cmd-row"><p>git add .</p><button type="button" class="copy-btn" data-copy="git add .">Copy</button></div>
+              <div class="cmd-row"><p>git commit -m "Add garlic butter crust recipe"</p><button type="button" class="copy-btn" data-copy='git commit -m "Add garlic butter crust recipe"'>Copy</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="card card-lg mt-4">
+          <h3 class="text-xl font-semibold">Push to Mishthi’s fork</h3>
+          <p class="mt-2 text-zinc-300">Mishthi can push because she owns <code class="font-mono text-violet-200">mishthi/pizza-recipe</code>.</p>
+          <div class="term mt-4">
+            <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — mishthi@MacBook-Pro</span></div>
+            <div class="term-body"><div class="cmd-row"><p>git push -u origin garlic-crust</p><button type="button" class="copy-btn" data-copy="git push -u origin garlic-crust">Copy</button></div></div>
+          </div>
+          <div class="mt-4 space-y-2 text-center">
+            <div class="card">Mishthi Mac · garlic-crust</div>
+            <p class="text-xs uppercase text-zinc-500">git push</p>
+            <div class="card">Mishthi GitHub · garlic-crust</div>
+          </div>
+        </article>
+      </section>
+
+      <section id="pull-requests" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 8</p>
+        <h2 class="text-3xl font-bold tracking-tight">Pull requests</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">A pull request does not automatically copy the code into Ani’s repository. It asks Ani: “Would you like to review and merge my changes?”</p>
+        <div class="gh-chrome mt-6">
+          <div class="border-b border-white/10 px-4 py-3">
+            <h3 class="text-lg font-semibold">Open a Pull Request</h3>
+          </div>
+          <div class="grid gap-4 p-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
+            <div class="rounded-xl border border-white/10 p-3">
+              <p class="text-xs text-zinc-500">base repository</p>
+              <p class="font-mono text-sm">ani/pizza-recipe</p>
+              <p class="mt-2 text-xs text-zinc-500">base</p>
+              <p class="font-mono text-sm">main</p>
+            </div>
+            <p class="text-center text-zinc-500" aria-hidden="true">←</p>
+            <div class="rounded-xl border border-white/10 p-3">
+              <p class="text-xs text-zinc-500">head repository</p>
+              <p class="font-mono text-sm">mishthi/pizza-recipe</p>
+              <p class="mt-2 text-xs text-zinc-500">compare</p>
+              <p class="font-mono text-sm">garlic-crust</p>
+            </div>
+          </div>
+          <div class="px-4 pb-4">
+            <p class="text-sm text-zinc-400">Title</p>
+            <p class="mt-1 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2">Add garlic butter crust recipe</p>
+            <button type="button" id="create-pr-btn" class="mt-4 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-zinc-950">Create Pull Request</button>
+            <p id="create-pr-status" class="mt-2 text-sm text-zinc-400" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <article class="card card-lg mt-6">
+          <h3 class="text-xl font-semibold">Review + merge</h3>
+          <p class="mt-2 text-sm text-zinc-400">Ani reviews a simplified diff.</p>
+          <pre class="diff-add mt-4 overflow-x-auto rounded-xl p-4 font-mono text-sm">+ Garlic Butter Crust
++ 2 tbsp butter
++ 3 garlic cloves
++ oregano</pre>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button type="button" class="review-btn rounded-lg border border-white/10 px-3 py-2 text-sm" data-review="comment">Comment</button>
+            <button type="button" class="review-btn rounded-lg border border-white/10 px-3 py-2 text-sm" data-review="changes">Request Changes</button>
+            <button type="button" class="review-btn rounded-lg border border-emerald-400/40 px-3 py-2 text-sm text-emerald-200" data-review="approve">Approve</button>
+            <button type="button" id="merge-pr-btn" class="rounded-lg bg-violet-500 px-3 py-2 text-sm font-semibold text-zinc-950">Merge Pull Request</button>
+          </div>
+          <p id="review-status" class="mt-3 text-sm text-zinc-400" aria-live="polite">Choose a review action. Merging still requires Ani to accept the request.</p>
+          <p class="mt-4 text-zinc-300">After merge: Ani’s main branch + Mishthi’s contribution = updated pizza website.</p>
+        </article>
+      </section>
+
+      <section id="origin-upstream" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 9</p>
+        <h2 class="text-3xl font-bold tracking-tight">Origin and upstream</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">After cloning her fork, Mishthi already has origin pointing at her GitHub copy. Upstream is optional extra knowledge.</p>
+        <details class="card card-lg mt-6">
+          <summary class="cursor-pointer text-lg font-semibold">What is upstream?</summary>
+          <div class="mt-4 space-y-4">
+            <p class="text-zinc-300">origin = my GitHub copy. upstream = original GitHub project.</p>
+            <div class="term">
+              <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — mishthi@MacBook-Pro</span></div>
+              <div class="term-body space-y-1">
+                <div class="cmd-row"><p>git remote add upstream https://github.com/ani/pizza-recipe.git</p><button type="button" class="copy-btn" data-copy="git remote add upstream https://github.com/ani/pizza-recipe.git">Copy</button></div>
+                <div class="cmd-row"><p>git remote -v</p><button type="button" class="copy-btn" data-copy="git remote -v">Copy</button></div>
+              </div>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              <div class="card text-center"><p class="text-xs text-violet-300">UPSTREAM</p><p class="font-mono text-sm">ani/pizza-recipe</p></div>
+              <div class="card text-center"><p class="text-xs text-cyan-300">ORIGIN</p><p class="font-mono text-sm">mishthi/pizza-recipe</p></div>
+            </div>
+            <p class="text-center text-sm text-zinc-500">both connect to Mishthi’s Mac</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="github-vercel" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 10</p>
+        <h2 class="text-3xl font-bold tracking-tight">GitHub → Vercel → live website</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">The pizza-recipe code is now on GitHub. How does it become a website people can open? Vercel.</p>
+        <div class="flow flow-h mt-8">
+          <div class="flow-node card text-center">Mac</div>
+          <div class="flow-arrow"><span class="md:hidden">↓ git push</span><span class="hidden md:inline">git push →</span></div>
+          <div class="flow-node card text-center">GitHub</div>
+          <div class="flow-arrow"><span class="md:hidden">↓ connected repo</span><span class="hidden md:inline">connected →</span></div>
+          <div class="flow-node card text-center">Vercel</div>
+          <div class="flow-arrow"><span class="md:hidden">↓ deploy</span><span class="hidden md:inline">deploy →</span></div>
+          <div class="flow-node card text-center">Live website</div>
+        </div>
+        <article class="card card-lg mt-6">
+          <h3 class="text-xl font-semibold">What is Vercel?</h3>
+          <p class="mt-2 text-zinc-300">Vercel can take the website stored in GitHub, build and deploy it, and give the project a public website URL.</p>
+          <p class="mt-3 font-mono text-cyan-200">pizza-recipe.vercel.app <span class="text-zinc-500">(example URL)</span></p>
+        </article>
+
+        <div class="mt-8 grid gap-4">
+          <article class="card"><p class="text-xs text-zinc-500">Step 1</p><h3 class="font-semibold">Open Vercel</h3><p class="mt-2 inline-flex rounded-lg bg-zinc-50 px-4 py-2 text-sm font-semibold text-zinc-950">Continue with GitHub</p></article>
+          <article class="card"><p class="text-xs text-zinc-500">Step 2</p><h3 class="font-semibold">Connect and authorize GitHub</h3></article>
+          <article class="card"><p class="text-xs text-zinc-500">Step 3</p><h3 class="font-semibold">Choose <code class="font-mono text-violet-200">ani/pizza-recipe</code></h3></article>
+          <article class="card"><p class="text-xs text-zinc-500">Step 4</p><h3 class="font-semibold">Click Import</h3></article>
+          <article class="card"><p class="text-xs text-zinc-500">Step 5</p><h3 class="font-semibold">Keep configuration simple</h3><p class="mt-2 text-sm text-zinc-400">This project is a simple <code class="font-mono">index.html</code>. Framework preset can stay Other / no build command.</p></article>
+          <article class="card"><p class="text-xs text-zinc-500">Step 6</p><h3 class="font-semibold">Click Deploy</h3></article>
+        </div>
+
+        <div class="card card-lg mt-6">
+          <h3 class="text-xl font-semibold">Deployment simulation</h3>
+          <button type="button" id="deploy-sim-btn" class="mt-4 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-zinc-950">Simulate Deploy</button>
+          <ol id="deploy-log" class="mt-4 space-y-2 text-sm text-zinc-400">
+            <li>Waiting to start…</li>
+          </ol>
+          <p id="deploy-live" class="mt-4 hidden text-lg font-semibold text-emerald-300">Your website is live · pizza-recipe.vercel.app <span class="text-sm font-normal text-zinc-500">(example)</span></p>
+        </div>
+
+        <details class="card mt-6">
+          <summary class="cursor-pointer font-semibold">Advanced / optional: Vercel CLI on Mac</summary>
+          <p class="mt-3 text-sm text-zinc-400">GitHub integration is the recommended learning path because it shows automatic deployments clearly. Use the CLI later if you want Terminal control.</p>
+          <div class="term mt-4">
+            <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+            <div class="term-body space-y-1">
+              <div class="cmd-row"><p>npm i -g vercel</p><button type="button" class="copy-btn" data-copy="npm i -g vercel">Copy</button></div>
+              <div class="cmd-row"><p>vercel login</p><button type="button" class="copy-btn" data-copy="vercel login">Copy</button></div>
+              <div class="cmd-row"><p>vercel link</p><button type="button" class="copy-btn" data-copy="vercel link">Copy</button></div>
+              <div class="cmd-row"><p>vercel</p><button type="button" class="copy-btn" data-copy="vercel">Copy</button></div>
+              <div class="cmd-row"><p>vercel --prod</p><button type="button" class="copy-btn" data-copy="vercel --prod">Copy</button></div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section id="auto-deploy" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 11</p>
+        <h2 class="text-3xl font-bold tracking-tight">Connect once. Push code. Website updates.</h2>
+        <p class="mt-3 max-w-2xl text-zinc-300">Once the GitHub repository is connected to Vercel, you do not upload HTML by hand after every edit.</p>
+        <ol class="mt-6 space-y-2 text-zinc-300">
+          <li>1. Edit locally</li>
+          <li>2. Commit</li>
+          <li>3. Push to GitHub</li>
+          <li>4. Vercel detects the Git change</li>
+          <li>5. New deployment</li>
+          <li>6. Live website updates</li>
+        </ol>
+        <div class="term mt-6">
+          <div class="term-bar"><span class="term-dot bg-rose-400"></span><span class="term-dot bg-amber-300"></span><span class="term-dot bg-emerald-400"></span><span class="ml-2 text-xs text-zinc-400">Terminal — samriti@MacBook-Pro</span></div>
+          <div class="term-body space-y-1">
+            <div class="cmd-row"><p>git add .</p><button type="button" class="copy-btn" data-copy="git add .">Copy</button></div>
+            <div class="cmd-row"><p>git commit -m "Add mushroom pizza"</p><button type="button" class="copy-btn" data-copy='git commit -m "Add mushroom pizza"'>Copy</button></div>
+            <div class="cmd-row"><p>git push origin main</p><button type="button" class="copy-btn" data-copy="git push origin main">Copy</button></div>
+          </div>
+        </div>
+        <div class="takeaway mt-6">
+          <p class="text-xl font-semibold">You do not need to manually upload your HTML file to Vercel every time.</p>
+          <p class="mt-2 text-zinc-300">GitHub becomes the source connected to Vercel.</p>
+        </div>
+
+        <div class="card card-lg mt-8">
+          <h3 class="text-xl font-semibold">What happens when I push?</h3>
+          <button type="button" id="push-sim-btn" class="mt-4 rounded-lg bg-indigo-400 px-4 py-2.5 text-sm font-semibold text-zinc-950">Simulate git push</button>
+          <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div id="sim-mac" class="sim-node"><p class="text-xs text-zinc-500">Mac</p><p class="mt-2 font-semibold" data-sim-label>●</p><p class="text-sm text-zinc-400" data-sim-status>Idle</p></div>
+            <div id="sim-gh" class="sim-node"><p class="text-xs text-zinc-500">GitHub</p><p class="mt-2 font-semibold" data-sim-label>○</p><p class="text-sm text-zinc-400" data-sim-status>Waiting</p></div>
+            <div id="sim-vercel" class="sim-node"><p class="text-xs text-zinc-500">Vercel</p><p class="mt-2 font-semibold" data-sim-label>○</p><p class="text-sm text-zinc-400" data-sim-status>Waiting</p></div>
+            <div id="sim-live" class="sim-node"><p class="text-xs text-zinc-500">Live website</p><p class="mt-2 font-semibold" data-sim-label>○</p><p class="text-sm text-zinc-400" data-sim-status>Waiting</p></div>
+          </div>
+          <p id="push-sim-status" class="mt-4 text-sm text-zinc-400" aria-live="polite">Click the button to watch a local-only animation. No network request is made.</p>
+        </div>
+
+        <div class="takeaway mt-8">
+          <p class="font-semibold">CHANGE → COMMIT → PUSH → VERCEL DEPLOYMENT → SAME PRODUCTION URL UPDATED</p>
+        </div>
+      </section>
+
+      <section id="preview-production" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 12</p>
+        <h2 class="text-3xl font-bold tracking-tight">Preview vs production</h2>
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+          <article class="card card-lg">
+            <h3 class="text-lg font-semibold text-emerald-200">Production URL</h3>
+            <p class="mt-2 font-mono text-cyan-200">pizza-recipe.vercel.app <span class="text-zinc-500">(example)</span></p>
+            <p class="mt-3 text-sm text-zinc-300">This is the main website link you normally share. When a successful Production Deployment becomes active, this domain points to the current production version.</p>
+          </article>
+          <article class="card card-lg">
+            <h3 class="text-lg font-semibold text-violet-200">Deployment / Preview URL</h3>
+            <p class="mt-2 break-all font-mono text-sm text-violet-200">pizza-recipe-garlic-crust-xyz.vercel.app <span class="text-zinc-500">(example)</span></p>
+            <p class="mt-3 text-sm text-zinc-300">Temporary testing version for a particular deployment or branch. Share the stable Production URL as the permanent project link.</p>
+          </article>
+        </div>
+        <article class="card card-lg mt-6">
+          <h3 class="text-xl font-semibold">Branches create preview deployments</h3>
+          <p class="mt-2 text-zinc-300">Mishthi pushes <code class="font-mono">git push origin garlic-crust</code>.</p>
+          <div class="mt-4 space-y-2 text-center">
+            <div class="card">garlic-crust branch</div>
+            <p class="text-xs uppercase text-zinc-500">GitHub</p>
+            <div class="card">Vercel Preview</div>
+            <p class="text-xs uppercase text-zinc-500">Temporary preview URL</p>
+          </div>
+          <div class="gh-chrome mt-6 p-4">
+            <p class="font-semibold">Pull Request #12</p>
+            <p class="text-zinc-300">Add garlic crust</p>
+            <p class="mt-2 text-sm text-emerald-300">Vercel Preview Ready</p>
+            <a class="mt-3 inline-block rounded-lg border border-white/10 px-3 py-2 text-sm" href="#preview-production">Visit Preview</a>
+          </div>
+          <p class="mt-3 text-sm text-zinc-400">This lets Ani see the working website before merging into production. A pull request itself does not deploy production.</p>
+        </article>
+        <article class="card card-lg mt-4">
+          <h3 class="text-xl font-semibold">PR → merge → production</h3>
+          <ol class="mt-4 space-y-3">
+            <li class="rounded-xl border border-indigo-400/20 bg-indigo-500/10 p-3"><span class="text-xs uppercase text-indigo-300">Development</span><p>Mishthi · Feature branch</p></li>
+            <li class="rounded-xl border border-violet-400/20 bg-violet-500/10 p-3"><span class="text-xs uppercase text-violet-300">Preview</span><p>Pull Request · Vercel Preview</p></li>
+            <li class="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3"><span class="text-xs uppercase text-amber-200">Review</span><p>Ani reviews the website</p></li>
+            <li class="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3"><span class="text-xs uppercase text-emerald-300">Production</span><p>Merge PR → main → Vercel Production → live website updated</p></li>
+          </ol>
+        </article>
+      </section>
+
+      <section id="architecture" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 13</p>
+        <h2 class="text-3xl font-bold tracking-tight">Complete architecture</h2>
+        <p class="mt-3 text-zinc-300">Select a node to learn the vocabulary for that part of the system.</p>
+        <div class="mt-6 grid gap-3 md:grid-cols-4">
+          <button type="button" class="arch-node card text-left" data-arch="local" aria-pressed="false">
+            <p class="text-xs uppercase text-indigo-300">Local</p>
+            <p class="font-semibold">Samriti Mac</p>
+            <p class="text-sm text-zinc-400">VS Code / Terminal</p>
+          </button>
+          <button type="button" class="arch-node card text-left" data-arch="github" aria-pressed="false">
+            <p class="text-xs uppercase text-violet-300">Remote</p>
+            <p class="font-semibold">GitHub</p>
+            <p class="text-sm text-zinc-400">ani/pizza-recipe</p>
+          </button>
+          <button type="button" class="arch-node card text-left" data-arch="vercel" aria-pressed="false">
+            <p class="text-xs uppercase text-cyan-300">Deployment</p>
+            <p class="font-semibold">Vercel</p>
+            <p class="text-sm text-zinc-400">Build + Deploy</p>
+          </button>
+          <button type="button" class="arch-node card text-left" data-arch="live" aria-pressed="false">
+            <p class="text-xs uppercase text-emerald-300">Production</p>
+            <p class="font-semibold">Live site</p>
+            <p class="text-sm text-zinc-400">pizza-recipe.vercel.app</p>
+          </button>
+        </div>
+        <p id="arch-detail" class="card mt-4 text-zinc-300" aria-live="polite">Select Local, GitHub, Vercel, or Live site. git push connects the Mac to GitHub. Automatic deployment connects GitHub to Vercel.</p>
+      </section>
+
+      <section id="mistakes" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 14</p>
+        <h2 class="text-3xl font-bold tracking-tight">Common beginner mistakes</h2>
+        <div class="mt-6 grid gap-4">
+          <article class="card border-amber-400/30">
+            <h3 class="font-semibold text-amber-200">Mistake 1 · “I cloned the repository, so I can push.”</h3>
+            <p class="mt-2 text-zinc-300">Clone gives files. Permissions determine push access.</p>
+          </article>
+          <article class="card border-amber-400/30">
+            <h3 class="font-semibold text-amber-200">Mistake 2 · “I forked the repository, so the files are now on my Mac.”</h3>
+            <p class="mt-2 text-zinc-300">Fork created a GitHub repository. Clone the fork to get it onto your Mac.</p>
+          </article>
+          <article class="card border-amber-400/30">
+            <h3 class="font-semibold text-amber-200">Mistake 3 · “I committed, so GitHub has my changes.”</h3>
+            <p class="mt-2 text-zinc-300">Commit = saved locally. Push = sent to GitHub.</p>
+          </article>
+          <article class="card border-amber-400/30">
+            <h3 class="font-semibold text-amber-200">Mistake 4 · “I pushed my branch, so Ani’s main branch changed.”</h3>
+            <p class="mt-2 text-zinc-300">A branch push does not automatically merge that branch into Ani’s main.</p>
+          </article>
+          <article class="card border-amber-400/30">
+            <h3 class="font-semibold text-amber-200">Mistake 5 · “I connected Vercel once, so I need to upload the HTML again after every change.”</h3>
+            <p class="mt-2 text-zinc-300">When the repository is connected through Git integration, Git changes can trigger new deployments automatically.</p>
+          </article>
+        </div>
+
+        <h3 class="mt-10 text-2xl font-bold">Comparison matrix</h3>
+        <p class="mt-2 text-zinc-300">Fork and Clone are not alternatives performing the same job. External contributors often use both: Fork first, then Clone.</p>
+        <div class="mt-4 overflow-x-auto">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th scope="col">Question</th>
+                <th scope="col">Clone</th>
+                <th scope="col">Fork</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Happens where?</th>
+                <td data-label="Clone">GitHub → Mac</td>
+                <td data-label="Fork">GitHub → GitHub</td>
+              </tr>
+              <tr>
+                <th scope="row">Creates local files?</th>
+                <td data-label="Clone">Yes</td>
+                <td data-label="Fork">No</td>
+              </tr>
+              <tr>
+                <th scope="row">Creates a new GitHub repo?</th>
+                <td data-label="Clone">No</td>
+                <td data-label="Fork">Yes</td>
+              </tr>
+              <tr>
+                <th scope="row">Requires push access to original?</th>
+                <td data-label="Clone">Only if pushing there</td>
+                <td data-label="Fork">No</td>
+              </tr>
+              <tr>
+                <th scope="row">Common use</th>
+                <td data-label="Clone">Team / local development</td>
+                <td data-label="Fork">External contribution</td>
+              </tr>
+              <tr>
+                <th scope="row">PR required?</th>
+                <td data-label="Clone">Depends on team workflow</td>
+                <td data-label="Fork">Usually</td>
+              </tr>
+              <tr>
+                <th scope="row">Main action</th>
+                <td data-label="Clone">git clone</td>
+                <td data-label="Fork">GitHub Fork button</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="quiz" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 15</p>
+        <h2 class="text-3xl font-bold tracking-tight">Interactive knowledge check</h2>
+        <p class="mt-3 text-zinc-300">Answer all seven questions. Each one explains the idea after you choose.</p>
+        <form id="quiz-form" class="mt-8 space-y-8">
+          <fieldset class="card" data-answer="clone">
+            <legend class="text-lg font-semibold">1. Samriti has write access and needs the project on her Mac. What should she do?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="fork">Fork</button>
+              <button type="button" class="quiz-option" data-value="clone">Clone</button>
+              <button type="button" class="quiz-option" data-value="pr">Pull Request</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">Clone copies Ani’s repository onto Samriti’s Mac. She already has write permission, so she does not need a fork first.</p>
+          </fieldset>
+          <fieldset class="card" data-answer="flow">
+            <legend class="text-lg font-semibold">2. Mishthi has no write permission but wants to contribute. What is the correct flow?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="clone-push">Clone Ani’s repo, then git push origin main</button>
+              <button type="button" class="quiz-option" data-value="flow">Fork → Clone → Branch → Commit → Push → PR</button>
+              <button type="button" class="quiz-option" data-value="fork-only">Fork, then wait — the files appear on her Mac</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">External contribution usually needs both a fork and a clone, then a pull request because she cannot push to Ani’s repository.</p>
+          </fieldset>
+          <fieldset class="card" data-answer="github">
+            <legend class="text-lg font-semibold">3. Where does Fork happen?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="mac">On your Mac, in Terminal</button>
+              <button type="button" class="quiz-option" data-value="github">On GitHub</button>
+              <button type="button" class="quiz-option" data-value="vercel">On Vercel</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">Fork creates another GitHub repository under your account. It does not place files on the Mac.</p>
+          </fieldset>
+          <fieldset class="card" data-answer="mac">
+            <legend class="text-lg font-semibold">4. Where does Clone place the project?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="mac">Your Mac</button>
+              <button type="button" class="quiz-option" data-value="vercel">Vercel</button>
+              <button type="button" class="quiz-option" data-value="new-github">A brand-new GitHub account</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">Clone answers “How do I get this repository onto my Mac?”</p>
+          </fieldset>
+          <fieldset class="card" data-answer="push">
+            <legend class="text-lg font-semibold">5. What sends committed code from your Mac to GitHub?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="commit">git commit</button>
+              <button type="button" class="quiz-option" data-value="push">git push</button>
+              <button type="button" class="quiz-option" data-value="add">git add .</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">Commit saves a checkpoint locally. Push sends those commits to the remote (usually origin on GitHub).</p>
+          </fieldset>
+          <fieldset class="card" data-answer="deploy">
+            <legend class="text-lg font-semibold">6. After GitHub is connected to Vercel, what can happen after a new commit is pushed?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="upload">You must upload index.html in the Vercel dashboard again</button>
+              <button type="button" class="quiz-option" data-value="deploy">Vercel creates a new deployment</button>
+              <button type="button" class="quiz-option" data-value="fork">GitHub automatically forks the repo</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">The Git integration watches the connected repository. A push can trigger a new deployment. You keep working from Mac + GitHub.</p>
+          </fieldset>
+          <fieldset class="card" data-answer="preview">
+            <legend class="text-lg font-semibold">7. A pull request on a feature branch usually creates which Vercel result first?</legend>
+            <div class="mt-4 space-y-2">
+              <button type="button" class="quiz-option" data-value="prod">An immediate production deployment to the main URL</button>
+              <button type="button" class="quiz-option" data-value="preview">A preview deployment for review</button>
+              <button type="button" class="quiz-option" data-value="clone">A clone of Vercel onto your Mac</button>
+            </div>
+            <p class="quiz-explain mt-3 hidden text-sm text-zinc-400">PR / branch → Preview. Merge into the production branch (often main) → Production deployment.</p>
+          </fieldset>
+        </form>
+        <p id="quiz-score" class="mt-6 text-lg font-semibold text-zinc-200" aria-live="polite">Score: 0 / 7</p>
+        <p id="quiz-mastered" class="mt-2 hidden text-xl font-bold text-emerald-300">Git Workflow Mastered</p>
+      </section>
+
+      <section id="cheat-sheet" class="scroll-mt-28">
+        <p class="mb-3 text-sm font-medium text-indigo-300">Chapter 16</p>
+        <h2 class="text-3xl font-bold tracking-tight">From zero to live website</h2>
+        <ol class="mt-6 space-y-2 text-zinc-300">
+          <li>1. Open Terminal on Mac</li>
+          <li>2. Clone GitHub repository</li>
+          <li>3. Create branch</li>
+          <li>4. Edit files</li>
+          <li>5. git status</li>
+          <li>6. git add .</li>
+          <li>7. git commit</li>
+          <li>8. git push</li>
+          <li>9. Open Pull Request</li>
+          <li>10. Review</li>
+          <li>11. Merge</li>
+          <li>12. Vercel deploys</li>
+          <li>13. Production website updates</li>
+        </ol>
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
+          <article class="card">
+            <h3 class="font-semibold text-emerald-200">Direct collaborator</h3>
+            <p class="mt-3 font-mono text-sm leading-7 text-zinc-300">CLONE → EDIT → COMMIT → PUSH → GITHUB → VERCEL → LIVE</p>
+          </article>
+          <article class="card">
+            <h3 class="font-semibold text-violet-200">External contributor</h3>
+            <p class="mt-3 font-mono text-sm leading-7 text-zinc-300">FORK → CLONE → BRANCH → EDIT → COMMIT → PUSH → PR → PREVIEW → REVIEW → MERGE → PRODUCTION</p>
+          </article>
+        </div>
+
+        <h3 class="mt-10 text-2xl font-bold">Git vocabulary cheat sheet</h3>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <details class="card"><summary class="cursor-pointer font-semibold">Repository</summary><p class="mt-2 text-sm text-zinc-400">A project’s files plus Git history.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Local</summary><p class="mt-2 text-sm text-zinc-400">Your Mac.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Remote</summary><p class="mt-2 text-sm text-zinc-400">A repository hosted somewhere such as GitHub.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Clone</summary><p class="mt-2 text-sm text-zinc-400">Remote → Mac.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Fork</summary><p class="mt-2 text-sm text-zinc-400">Someone else’s GitHub repo → your GitHub account.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Commit</summary><p class="mt-2 text-sm text-zinc-400">Saved checkpoint.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Push</summary><p class="mt-2 text-sm text-zinc-400">Mac → Remote.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Pull</summary><p class="mt-2 text-sm text-zinc-400">Remote → Mac.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Branch</summary><p class="mt-2 text-sm text-zinc-400">Independent line of work.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Pull Request</summary><p class="mt-2 text-sm text-zinc-400">Request to review and merge code.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Origin</summary><p class="mt-2 text-sm text-zinc-400">Your default remote repository.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Upstream</summary><p class="mt-2 text-sm text-zinc-400">Original repository a fork came from.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Deploy</summary><p class="mt-2 text-sm text-zinc-400">Make a version of the application available online.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Production</summary><p class="mt-2 text-sm text-zinc-400">Version intended for real users.</p></details>
+          <details class="card"><summary class="cursor-pointer font-semibold">Preview</summary><p class="mt-2 text-sm text-zinc-400">Temporary/test deployment used before production.</p></details>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="border-t border-white/10 px-4 py-8 text-center text-sm text-zinc-500">
+    <p>Educational examples only. Repository names and Vercel URLs in this tutorial are sample values, not a live classroom project.</p>
+  </footer>
+
+  <script>
+    (function () {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const STORAGE_KEY = 'pizza-git-journey';
+      const STEPS = ['mac-setup', 'clone', 'commit', 'push', 'fork', 'pr', 'deploy'];
+      const SECTION_STEPS = {
+        'mac-setup': 'mac-setup',
+        'clone-vs-fork': 'clone',
+        'team-workflow': 'commit',
+        'fork-workflow': 'fork',
+        'branches': 'fork',
+        'pull-requests': 'pr',
+        'github-vercel': 'deploy',
+        'auto-deploy': 'push'
+      };
+
+      function loadProgress() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed.filter(function (id) { return STEPS.indexOf(id) !== -1; }) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveProgress(done) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(done)); } catch (e) {}
+      }
+
+      let done = loadProgress();
+
+      function renderProgress() {
+        document.querySelectorAll('.journey-dot').forEach(function (dot) {
+          const step = dot.getAttribute('data-step');
+          const complete = done.indexOf(step) !== -1;
+          dot.classList.toggle('done', complete);
+          dot.parentElement.setAttribute('aria-label', (complete ? 'Completed: ' : 'Not yet completed: ') + (dot.parentElement.textContent || step));
+        });
+      }
+
+      function markStep(id) {
+        if (STEPS.indexOf(id) === -1 || done.indexOf(id) !== -1) return;
+        done.push(id);
+        saveProgress(done);
+        renderProgress();
+      }
+
+      renderProgress();
+
+      function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text);
+        }
+        return new Promise(function (resolve, reject) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'absolute';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            resolve();
+          } catch (err) {
+            reject(err);
+          } finally {
+            document.body.removeChild(ta);
+          }
+        });
+      }
+
+      document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        const text = btn.getAttribute('data-copy') || '';
+        btn.setAttribute('aria-label', 'Copy command: ' + text);
+        btn.addEventListener('click', function () {
+          copyText(text).then(function () {
+            const original = 'Copy';
+            btn.textContent = 'Copied!';
+            window.setTimeout(function () { btn.textContent = original; }, 1500);
+            if (text.indexOf('git clone') !== -1) markStep('clone');
+            if (text.indexOf('git commit') !== -1) markStep('commit');
+            if (text.indexOf('git push') !== -1) markStep('push');
+          }).catch(function () {
+            btn.textContent = 'Copy failed';
+            window.setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+          });
+        });
+      });
+
+      const tabTeam = document.getElementById('tab-team');
+      const tabOss = document.getElementById('tab-oss');
+      const panelTeam = document.getElementById('panel-team');
+      const panelOss = document.getElementById('panel-oss');
+
+      function selectTab(which) {
+        const team = which === 'team';
+        tabTeam.setAttribute('aria-selected', team ? 'true' : 'false');
+        tabOss.setAttribute('aria-selected', team ? 'false' : 'true');
+        panelTeam.hidden = !team;
+        panelOss.hidden = team;
+        if (!team) markStep('fork');
+      }
+      tabTeam.addEventListener('click', function () { selectTab('team'); });
+      tabOss.addEventListener('click', function () { selectTab('oss'); });
+      tabTeam.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); tabOss.focus(); selectTab('oss'); }
+      });
+      tabOss.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); tabTeam.focus(); selectTab('team'); }
+      });
+
+      const chapterSelect = document.getElementById('chapter-select');
+      chapterSelect.addEventListener('change', function () {
+        const el = document.getElementById(chapterSelect.value);
+        if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+
+      const chapterLinks = Array.prototype.slice.call(document.querySelectorAll('.chapter-link'));
+      const sections = chapterLinks.map(function (link) {
+        return document.querySelector(link.getAttribute('href'));
+      }).filter(Boolean);
+
+      const spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          chapterLinks.forEach(function (link) {
+            const on = link.getAttribute('href') === '#' + id;
+            if (on) link.setAttribute('aria-current', 'true');
+            else link.removeAttribute('aria-current');
+          });
+          chapterSelect.value = id;
+          if (SECTION_STEPS[id]) markStep(SECTION_STEPS[id]);
+        });
+      }, { rootMargin: '-30% 0px -55% 0px', threshold: 0.1 });
+      sections.forEach(function (section) { spy.observe(section); });
+
+      const forkBtn = document.getElementById('fork-btn');
+      if (forkBtn) {
+        forkBtn.addEventListener('click', function () {
+          document.getElementById('fork-result').innerHTML = 'Fork created: <code class="text-violet-200">github.com/mishthi/pizza-recipe</code>. This copy is on GitHub, not yet on Mishthi’s Mac.';
+          markStep('fork');
+        });
+      }
+
+      document.getElementById('create-pr-btn').addEventListener('click', function () {
+        document.getElementById('create-pr-status').textContent = 'Pull request opened as a request. Ani still needs to review. Nothing has been merged yet.';
+        markStep('pr');
+      });
+
+      document.querySelectorAll('.review-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const kind = btn.getAttribute('data-review');
+          const status = document.getElementById('review-status');
+          if (kind === 'comment') status.textContent = 'Comment saved. Ani asked a question. The branch is unchanged.';
+          if (kind === 'changes') status.textContent = 'Changes requested. Mishthi should update garlic-crust and push again.';
+          if (kind === 'approve') status.textContent = 'Approved. Ani still needs to merge before main (and production) change.';
+        });
+      });
+
+      document.getElementById('merge-pr-btn').addEventListener('click', function () {
+        document.getElementById('review-status').textContent = 'Merged into ani/pizza-recipe main. That can trigger a Vercel production deployment. A pull request by itself does not ship production.';
+        markStep('pr');
+      });
+
+      const archCopy = {
+        local: 'Local is the project on your Mac. Commits are saved here first. git push sends them to a remote.',
+        github: 'GitHub is the remote repository. It stores the project for collaboration. origin usually points here.',
+        vercel: 'Vercel builds and deploys from the connected GitHub repository. You connect once; later git pushes can create new deployments.',
+        live: 'Production is the version intended for real users, often at a stable URL such as pizza-recipe.vercel.app (example). Preview URLs are temporary.'
+      };
+      document.querySelectorAll('.arch-node').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.arch-node').forEach(function (other) { other.setAttribute('aria-pressed', 'false'); });
+          btn.setAttribute('aria-pressed', 'true');
+          document.getElementById('arch-detail').textContent = archCopy[btn.getAttribute('data-arch')] || '';
+        });
+      });
+
+      function delay(ms) {
+        return new Promise(function (resolve) { window.setTimeout(resolve, reduceMotion ? 0 : ms); });
+      }
+
+      const deployBtn = document.getElementById('deploy-sim-btn');
+      const deployLog = document.getElementById('deploy-log');
+      const deployLive = document.getElementById('deploy-live');
+      deployBtn.addEventListener('click', async function () {
+        deployBtn.setAttribute('aria-busy', 'true');
+        deployLive.classList.add('hidden');
+        const steps = [
+          'Importing repository…',
+          '✓ Repository connected',
+          'Building…',
+          '✓ Build complete',
+          'Deploying…',
+          '✓ Deployment ready'
+        ];
+        deployLog.innerHTML = '';
+        for (let i = 0; i < steps.length; i += 1) {
+          const li = document.createElement('li');
+          li.textContent = steps[i];
+          deployLog.appendChild(li);
+          await delay(500);
+        }
+        deployLive.classList.remove('hidden');
+        deployBtn.setAttribute('aria-busy', 'false');
+        markStep('deploy');
+      });
+
+      const pushBtn = document.getElementById('push-sim-btn');
+      const simNodes = [
+        { el: document.getElementById('sim-mac'), done: '✓ Commit ready', wait: 'Idle' },
+        { el: document.getElementById('sim-gh'), done: '✓ Code received', wait: 'Waiting' },
+        { el: document.getElementById('sim-vercel'), done: '⟳ Deploying', wait: 'Waiting', after: '✓ Deployed' },
+        { el: document.getElementById('sim-live'), done: '✓ Updated', wait: 'Waiting' }
+      ];
+
+      function resetSim() {
+        simNodes.forEach(function (node, index) {
+          node.el.classList.remove('is-active', 'is-done');
+          node.el.querySelector('[data-sim-label]').textContent = index === 0 ? '●' : '○';
+          node.el.querySelector('[data-sim-status]').textContent = node.wait;
+        });
+      }
+
+      pushBtn.addEventListener('click', async function () {
+        pushBtn.setAttribute('aria-busy', 'true');
+        resetSim();
+        document.getElementById('push-sim-status').textContent = 'Animation running locally. No Git or network call is happening.';
+        for (let i = 0; i < simNodes.length; i += 1) {
+          const node = simNodes[i];
+          node.el.classList.add('is-active');
+          node.el.querySelector('[data-sim-label]').textContent = i === 2 ? '⟳' : '✓';
+          node.el.querySelector('[data-sim-status]').textContent = node.done;
+          await delay(700);
+          if (node.after) node.el.querySelector('[data-sim-status]').textContent = node.after;
+          node.el.classList.remove('is-active');
+          node.el.classList.add('is-done');
+        }
+        document.getElementById('push-sim-status').textContent = 'Samriti’s Mac → GitHub → Vercel → pizza-recipe.vercel.app updated (example URL).';
+        pushBtn.setAttribute('aria-busy', 'false');
+        markStep('push');
+        markStep('deploy');
+      });
+
+      const quizForm = document.getElementById('quiz-form');
+      const answers = {};
+
+      function scoreQuiz() {
+        const fields = quizForm.querySelectorAll('fieldset');
+        let correct = 0;
+        fields.forEach(function (field) {
+          const key = field.querySelector('legend').textContent.slice(0, 2);
+          if (answers[key] === field.getAttribute('data-answer')) correct += 1;
+        });
+        document.getElementById('quiz-score').textContent = 'Score: ' + correct + ' / ' + fields.length;
+        document.getElementById('quiz-mastered').classList.toggle('hidden', correct !== fields.length);
+      }
+
+      quizForm.querySelectorAll('fieldset').forEach(function (field) {
+        const expected = field.getAttribute('data-answer');
+        const explain = field.querySelector('.quiz-explain');
+        field.querySelectorAll('.quiz-option').forEach(function (opt) {
+          opt.addEventListener('click', function () {
+            field.querySelectorAll('.quiz-option').forEach(function (other) {
+              other.classList.remove('is-correct', 'is-wrong');
+              other.setAttribute('aria-pressed', 'false');
+            });
+            const value = opt.getAttribute('data-value');
+            const key = field.querySelector('legend').textContent.slice(0, 2);
+            answers[key] = value;
+            if (value === expected) opt.classList.add('is-correct');
+            else {
+              opt.classList.add('is-wrong');
+              field.querySelector('[data-value="' + expected + '"]').classList.add('is-correct');
+            }
+            opt.setAttribute('aria-pressed', 'true');
+            explain.classList.remove('hidden');
+            scoreQuiz();
+          });
+        });
+      });
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    })();
+  </script>
+</body>
+</html>
