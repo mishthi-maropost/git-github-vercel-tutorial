@@ -1,8 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('pizza-theme');
+        var theme = stored === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
   <meta name="description" content="A beginner-friendly, Mac-first interactive tutorial: Git clone vs fork, GitHub collaboration, pull requests, and automatic Vercel deployments.">
   <title>From Mac to Live Website — Git, GitHub &amp; Vercel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,19 +39,40 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <style>
-    :root {
-      --bg: #09090b;
-      --surface: #18181b;
-      --elevated: #27272a;
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #fafafa;
-      --muted: #a1a1aa;
-      --indigo: #818cf8;
-      --violet: #c4b5fd;
-      --emerald: #34d399;
-      --cyan: #22d3ee;
-      --amber: #fbbf24;
-      --rose: #fb7185;
+    :root,
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --elevated: #f1f5f9;
+      --header-bg: rgba(248, 250, 252, 0.92);
+      --border: rgba(15, 23, 42, 0.12);
+      --text: #0f172a;
+      --muted: #475569;
+      --indigo: #4f46e5;
+      --violet: #7c3aed;
+      --emerald: #059669;
+      --cyan: #0e7490;
+      --amber: #d97706;
+      --rose: #e11d48;
+      --takeaway-from: rgba(79, 70, 229, 0.08);
+      --takeaway-to: rgba(255, 255, 255, 0.9);
+      --takeaway-border: rgba(79, 70, 229, 0.28);
+      --kbd-bg: #ffffff;
+      --kbd-border: rgba(15, 23, 42, 0.16);
+      --kbd-text: #0f172a;
+      --copy-bg: #ffffff;
+      --copy-text: #334155;
+      --copy-hover: #f1f5f9;
+      --quiz-bg: #ffffff;
+      --quiz-hover: #f8fafc;
+      --tab-active-bg: #ffffff;
+      --tab-active-text: #0f172a;
+      --link-hover-bg: #f1f5f9;
+      --chapter-active-bg: rgba(79, 70, 229, 0.1);
+      --chapter-active-text: #3730a3;
+      --gh-bg: #ffffff;
+      --gh-border: #d0d7de;
       --radius: 12px;
       --radius-lg: 16px;
       --space-1: 4px;
@@ -53,6 +85,41 @@
       --space-8: 48px;
     }
 
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #09090b;
+      --surface: #18181b;
+      --elevated: #27272a;
+      --header-bg: rgba(9, 9, 11, 0.9);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --indigo: #818cf8;
+      --violet: #c4b5fd;
+      --emerald: #34d399;
+      --cyan: #22d3ee;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --takeaway-from: rgba(129, 140, 248, 0.12);
+      --takeaway-to: rgba(24, 24, 27, 0.6);
+      --takeaway-border: rgba(129, 140, 248, 0.35);
+      --kbd-bg: #27272a;
+      --kbd-border: rgba(255, 255, 255, 0.14);
+      --kbd-text: #fafafa;
+      --copy-bg: #18181b;
+      --copy-text: #d4d4d8;
+      --copy-hover: #27272a;
+      --quiz-bg: #18181b;
+      --quiz-hover: #27272a;
+      --tab-active-bg: #27272a;
+      --tab-active-text: #fafafa;
+      --link-hover-bg: #18181b;
+      --chapter-active-bg: rgba(129, 140, 248, 0.12);
+      --chapter-active-text: #c7d2fe;
+      --gh-bg: #0d1117;
+      --gh-border: #30363d;
+    }
+
     html { scroll-behavior: smooth; overflow-x: clip; }
     body {
       background: var(--bg);
@@ -61,6 +128,7 @@
       font-size: 16px;
       line-height: 1.6;
       overflow-x: clip;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     .skip-link {
@@ -90,8 +158,8 @@
     .card-lg { padding: 24px; }
 
     .takeaway {
-      background: linear-gradient(180deg, rgba(129, 140, 248, 0.12), rgba(24, 24, 27, 0.6));
-      border: 1px solid rgba(129, 140, 248, 0.35);
+      background: linear-gradient(180deg, var(--takeaway-from), var(--takeaway-to));
+      border: 1px solid var(--takeaway-border);
       border-radius: var(--radius-lg);
       padding: 20px 24px;
     }
@@ -101,13 +169,13 @@
       align-items: center;
       min-height: 28px;
       padding: 2px 8px;
-      border: 1px solid rgba(255,255,255,0.14);
+      border: 1px solid var(--kbd-border);
       border-bottom-width: 2px;
       border-radius: 6px;
-      background: #27272a;
+      background: var(--kbd-bg);
       font-family: "JetBrains Mono", ui-monospace, monospace;
       font-size: 12px;
-      color: #fafafa;
+      color: var(--kbd-text);
     }
 
     .term {
@@ -158,12 +226,12 @@
       padding: 4px 10px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: #18181b;
-      color: #d4d4d8;
+      background: var(--copy-bg);
+      color: var(--copy-text);
       font-size: 12px;
       font-weight: 600;
     }
-    .copy-btn:hover { background: #27272a; color: #fafafa; }
+    .copy-btn:hover { background: var(--copy-hover); color: var(--text); }
 
     .flow {
       display: flex;
@@ -175,7 +243,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #71717a;
+      color: var(--muted);
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.04em;
@@ -194,36 +262,36 @@
       display: block;
       padding: 6px 10px;
       border-radius: 8px;
-      color: #a1a1aa;
+      color: var(--muted);
       font-size: 13px;
       line-height: 1.4;
     }
-    .chapter-link:hover { background: #18181b; color: #fafafa; }
+    .chapter-link:hover { background: var(--link-hover-bg); color: var(--text); }
     .chapter-link[aria-current="true"] {
-      background: rgba(129, 140, 248, 0.12);
-      color: #c7d2fe;
+      background: var(--chapter-active-bg);
+      color: var(--chapter-active-text);
     }
 
     .journey-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      border: 2px solid #52525b;
+      border: 2px solid var(--muted);
       background: transparent;
     }
     .journey-dot.done {
-      background: #34d399;
-      border-color: #34d399;
+      background: var(--emerald);
+      border-color: var(--emerald);
     }
 
     .tab-btn[aria-selected="true"] {
-      background: #27272a;
-      color: #fafafa;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+      background: var(--tab-active-bg);
+      color: var(--tab-active-text);
+      box-shadow: 0 0 0 1px var(--border);
     }
 
-    .gh-chrome { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; }
-    .diff-add { background: rgba(52, 211, 153, 0.12); color: #6ee7b7; }
+    .gh-chrome { background: var(--gh-bg); border: 1px solid var(--gh-border); border-radius: 12px; overflow: hidden; }
+    .diff-add { background: rgba(5, 150, 105, 0.12); color: var(--emerald); }
 
     .quiz-option {
       display: flex;
@@ -234,10 +302,10 @@
       padding: 12px 14px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: #18181b;
-      color: #fafafa;
+      background: var(--quiz-bg);
+      color: var(--text);
     }
-    .quiz-option:hover { background: #27272a; }
+    .quiz-option:hover { background: var(--quiz-hover); }
     .quiz-option.is-correct { border-color: rgba(52, 211, 153, 0.5); background: rgba(52, 211, 153, 0.08); }
     .quiz-option.is-wrong { border-color: rgba(251, 113, 133, 0.5); background: rgba(251, 113, 133, 0.08); }
 
@@ -258,7 +326,7 @@
       border-bottom: 1px solid var(--border);
       vertical-align: top;
     }
-    .compare-table th { color: #a1a1aa; font-weight: 600; font-size: 13px; }
+    .compare-table th { color: var(--muted); font-weight: 600; font-size: 13px; }
     @media (max-width: 700px) {
       .compare-table, .compare-table thead, .compare-table tbody, .compare-table th, .compare-table td, .compare-table tr {
         display: block;
@@ -269,7 +337,7 @@
       .compare-table td::before {
         content: attr(data-label);
         display: block;
-        color: #a1a1aa;
+        color: var(--muted);
         font-size: 12px;
         font-weight: 600;
         margin-bottom: 4px;
@@ -283,6 +351,60 @@
 
     .font-mono, code, pre { overflow-wrap: anywhere; }
 
+    .site-header {
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .theme-toggle:hover { background: var(--elevated); }
+    [data-theme="light"] .theme-icon-sun { display: none; }
+    [data-theme="dark"] .theme-icon-moon { display: none; }
+    #chapter-select {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    [data-theme="light"] .text-zinc-50,
+    [data-theme="light"] .text-zinc-100 { color: var(--text) !important; }
+    [data-theme="light"] .text-zinc-200 { color: #1e293b !important; }
+    [data-theme="light"] .text-zinc-300 { color: #334155 !important; }
+    [data-theme="light"] .text-zinc-400 { color: #475569 !important; }
+    [data-theme="light"] .text-zinc-500 { color: #64748b !important; }
+    [data-theme="light"] [class*="bg-zinc-950"],
+    [data-theme="light"] [class*="bg-zinc-900"] { background-color: var(--elevated) !important; }
+    [data-theme="light"] .bg-canvas { background-color: var(--bg) !important; }
+    [data-theme="light"] [class*="border-white/10"] { border-color: var(--border) !important; }
+    [data-theme="light"] .text-indigo-200 { color: #3730a3 !important; }
+    [data-theme="light"] .text-indigo-300 { color: #4338ca !important; }
+    [data-theme="light"] .text-violet-200 { color: #6d28d9 !important; }
+    [data-theme="light"] .text-violet-300 { color: #7c3aed !important; }
+    [data-theme="light"] .text-emerald-200 { color: #047857 !important; }
+    [data-theme="light"] .text-emerald-300 { color: #059669 !important; }
+    [data-theme="light"] .text-cyan-200 { color: #0e7490 !important; }
+    [data-theme="light"] .text-cyan-300 { color: #0891b2 !important; }
+    [data-theme="light"] .text-amber-200 { color: #b45309 !important; }
+    [data-theme="light"] .text-rose-200,
+    [data-theme="light"] .text-rose-300 { color: #be123c !important; }
+    [data-theme="light"] .term .text-zinc-50,
+    [data-theme="light"] .term .text-zinc-300 { color: #e4e4e7 !important; }
+    [data-theme="light"] .term .text-zinc-400 { color: #a1a1aa !important; }
+    [data-theme="light"] .term .text-zinc-500 { color: #71717a !important; }
+    [data-theme="light"] .copy-btn { color: var(--copy-text) !important; background: var(--copy-bg) !important; }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after {
@@ -292,17 +414,24 @@
     }
   </style>
 </head>
-<body class="bg-canvas text-zinc-50 antialiased">
+<body class="antialiased">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="sticky top-0 z-40 border-b border-white/10 bg-zinc-950/90 backdrop-blur">
+  <header class="site-header sticky top-0 z-40 backdrop-blur">
     <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-      <div class="flex items-center gap-3">
-        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-200" aria-hidden="true"><i data-lucide="pizza" class="h-5 w-5"></i></span>
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Interactive tutorial · macOS</p>
-          <p class="text-sm text-zinc-300">Pizza Recipe Website · Git · GitHub · Vercel</p>
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-200" aria-hidden="true"><i data-lucide="pizza" class="h-5 w-5"></i></span>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Interactive tutorial · macOS</p>
+            <p class="text-sm text-zinc-300">Pizza Recipe Website · Git · GitHub · Vercel</p>
+          </div>
         </div>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+          <i data-lucide="moon" class="theme-icon-moon h-4 w-4" aria-hidden="true"></i>
+          <i data-lucide="sun" class="theme-icon-sun h-4 w-4" aria-hidden="true"></i>
+          <span class="theme-label">Dark</span>
+        </button>
       </div>
       <div class="min-w-0">
         <p id="journey-label" class="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Your Git Journey</p>
@@ -969,7 +1098,7 @@
         </article>
 
         <div class="mt-8 grid gap-4">
-          <article class="card"><p class="text-xs text-zinc-500">Step 1</p><h3 class="font-semibold">Open Vercel</h3><p class="mt-2 inline-flex rounded-lg bg-zinc-50 px-4 py-2 text-sm font-semibold text-zinc-950">Continue with GitHub</p></article>
+          <article class="card"><p class="text-xs text-zinc-500">Step 1</p><h3 class="font-semibold">Open Vercel</h3><p class="mt-2 inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Continue with GitHub</p></article>
           <article class="card"><p class="text-xs text-zinc-500">Step 2</p><h3 class="font-semibold">Connect and authorize GitHub</h3></article>
           <article class="card"><p class="text-xs text-zinc-500">Step 3</p><h3 class="font-semibold">Choose <code class="font-mono text-violet-200">ani/pizza-recipe</code></h3></article>
           <article class="card"><p class="text-xs text-zinc-500">Step 4</p><h3 class="font-semibold">Click Import</h3></article>
@@ -1326,6 +1455,37 @@
     (function () {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const STORAGE_KEY = 'pizza-git-journey';
+      const THEME_KEY = 'pizza-theme';
+
+      function currentTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      }
+
+      function syncThemeToggle() {
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        const isDark = currentTheme() === 'dark';
+        btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        btn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+        const label = btn.querySelector('.theme-label');
+        if (label) label.textContent = isDark ? 'Light' : 'Dark';
+      }
+
+      function setTheme(theme) {
+        const next = theme === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+        syncThemeToggle();
+      }
+
+      syncThemeToggle();
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+          setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+        });
+      }
+
       const STEPS = ['mac-setup', 'clone', 'commit', 'push', 'fork', 'pr', 'deploy'];
       const SECTION_STEPS = {
         'mac-setup': 'mac-setup',
