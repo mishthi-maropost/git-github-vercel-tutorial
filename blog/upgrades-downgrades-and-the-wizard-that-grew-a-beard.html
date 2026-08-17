@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('pizza-theme');
+        var theme = stored === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <meta name="description" content="A UX designer's notes on redesigning Maropost's subscription lifecycle, a multichannel campaign wizard, and a new Marketing Contacts pricing model.">
+  <title>Upgrades, Downgrades, and the Wizard That Grew a Beard — Design Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
+          },
+          colors: {
+            canvas: '#09090b',
+            surface: '#18181b',
+            elevated: '#27272a'
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body class="antialiased">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header sticky top-0 z-40 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-200" aria-hidden="true"><i data-lucide="pizza" class="h-5 w-5"></i></span>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Design notes · Maropost</p>
+            <p class="text-sm text-zinc-300">Subscriptions · Multichannel · Marketing Contacts</p>
+          </div>
+        </div>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+          <i data-lucide="moon" class="theme-icon-moon h-4 w-4" aria-hidden="true"></i>
+          <i data-lucide="sun" class="theme-icon-sun h-4 w-4" aria-hidden="true"></i>
+          <span class="theme-label">Dark</span>
+        </button>
+      </div>
+      <nav aria-label="Breadcrumb" class="min-w-0">
+        <a class="chapter-link inline-flex items-center gap-2" href="../index.html">
+          <i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i>
+          Back to the Git &amp; Vercel tutorial
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+    <aside class="hidden lg:block lg:sticky lg:top-28 lg:self-start">
+      <nav aria-label="Sections">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">In this article</p>
+        <ol class="space-y-0.5">
+          <li><a class="chapter-link" href="#upgrade-downgrade">1. The Upgrade/Downgrade Saga</a></li>
+          <li><a class="chapter-link" href="#wizard">2. Building a Wizard, Taming a Report</a></li>
+          <li><a class="chapter-link" href="#marketing-contacts">3. Marketing Contacts</a></li>
+          <li><a class="chapter-link" href="#moral">4. The Actual Moral</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <main id="main" class="min-w-0 pb-24">
+      <article>
+        <header>
+          <p class="mb-3 text-sm font-medium text-indigo-300">Design notes · Subscription lifecycle</p>
+          <h1 class="article-title max-w-4xl text-3xl font-extrabold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl">Upgrades, Downgrades, and the Wizard That Grew a Beard</h1>
+          <p class="mt-4 max-w-2xl text-lg text-zinc-300">Some designers get to make things delightful. I get to make things <em>survivable</em> — specifically, the moment a customer tries to give us less money, and the moment a campaign builder tries to show them seventeen things at once. Here’s a tour through my last few months of billing chaos, multichannel mayhem, and a pricing model that made me learn HubSpot’s homework.</p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-white/10 pt-6">
+            <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-violet-500/15 text-sm font-bold text-violet-200" aria-hidden="true">M</span>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">Mishthi</p>
+              <p class="text-sm text-zinc-400">UX Designer · Maropost Design Team</p>
+            </div>
+            <p class="text-sm text-zinc-500 sm:ml-auto">17 August 2026 <span aria-hidden="true">·</span> 5 min read</p>
+          </div>
+        </header>
+
+        <section id="upgrade-downgrade" class="scroll-mt-28">
+          <h2 class="article-h2">The Upgrade/Downgrade Saga, or: How to Break Up Gracefully</h2>
+          <div class="prose mt-5">
+            <p>Nobody designs an upgrade flow and cries about it. Everybody designs a downgrade flow and questions their career choices. I’ve been leading the redesign of Maropost’s subscription lifecycle, which is a fancy way of saying I spent weeks thinking very hard about how to let someone leave without it feeling like a hostage negotiation.</p>
+            <p>We’re moving Marketing Cloud onto Active Profiles pricing, and rebuilding the whole Subscriptions section around a split I’m honestly proud of: Health, Growth, and Management — basically the Mind, Body, and Spirit of your subscription. Health tells you how your account’s doing. Growth tempts you to spend more, gently, like a menu with the profiteroles conveniently at eye level. Management is where you go to do the scary stuff.</p>
+          </div>
+
+          <figure class="mt-8">
+            <div class="flow flow-h">
+              <div class="flow-node card text-center">
+                <p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-emerald-300" aria-hidden="true"><i data-lucide="activity" class="h-5 w-5"></i></p>
+                <p class="text-xs uppercase tracking-wide text-emerald-300">Mind</p>
+                <p class="mt-1 font-semibold">Health</p>
+                <p class="mt-1 text-sm text-zinc-400">How your account is actually doing.</p>
+              </div>
+              <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+              <div class="flow-node card text-center">
+                <p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-indigo-300" aria-hidden="true"><i data-lucide="trending-up" class="h-5 w-5"></i></p>
+                <p class="text-xs uppercase tracking-wide text-indigo-300">Body</p>
+                <p class="mt-1 font-semibold">Growth</p>
+                <p class="mt-1 text-sm text-zinc-400">The profiteroles, at eye level.</p>
+              </div>
+              <div class="flow-arrow" aria-hidden="true"><span class="md:hidden">↓</span><span class="hidden md:inline">→</span></div>
+              <div class="flow-node card text-center">
+                <p class="mx-auto mb-2 flex h-8 w-8 items-center justify-center text-amber-200" aria-hidden="true"><i data-lucide="sliders-horizontal" class="h-5 w-5"></i></p>
+                <p class="text-xs uppercase tracking-wide text-amber-200">Spirit</p>
+                <p class="mt-1 font-semibold">Management</p>
+                <p class="mt-1 text-sm text-zinc-400">Where you go to do the scary stuff.</p>
+              </div>
+            </div>
+            <figcaption class="figure-note">The Subscriptions section, split three ways. Everything ominous lives in the third column.</figcaption>
+          </figure>
+
+          <div class="prose mt-8">
+            <p>And the scary stuff needed guardrails. We made downgrades Sales-only, because letting someone self-serve their way down a pricing tier at 11pm on a Tuesday felt like letting someone text their ex after two drinks — technically possible, rarely wise. Cancellation lives in what we now call the Danger Zone, which is exactly as ominous as it sounds, and also exactly the emotional register that button deserves. It took ten prototypes to get there. Ten. I’ve had shorter relationships.</p>
+          </div>
+
+          <figure class="mt-8">
+            <div class="danger-zone">
+              <p class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-300">
+                <i data-lucide="triangle-alert" class="h-4 w-4" aria-hidden="true"></i>
+                Danger Zone
+              </p>
+              <div class="mt-4 space-y-3">
+                <div class="control-row">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold">Downgrade plan</p>
+                    <p class="text-sm text-zinc-400">Not available on self-serve. A human will talk you through it.</p>
+                  </div>
+                  <button type="button" class="btn-quiet" disabled aria-disabled="true">Talk to Sales</button>
+                </div>
+                <div class="control-row">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold">Cancel subscription</p>
+                    <p class="text-sm text-zinc-400">Ends billing at the close of the current period.</p>
+                  </div>
+                  <button type="button" class="btn-danger" disabled aria-disabled="true">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <figcaption class="figure-note">A non-interactive sketch of the pattern, not a live product screen. Ten prototypes to arrive at two rows and one honest heading.</figcaption>
+          </figure>
+        </section>
+
+        <section id="wizard" class="scroll-mt-28">
+          <h2 class="article-h2">Building a Wizard, Taming a Report</h2>
+          <div class="prose mt-5">
+            <p>Then there’s the Multichannel Campaign experience — half report, half campaign-building wizard, fully a lesson in humility.</p>
+            <p>The report side is the easy part to explain: five tabs — Overview, Email, SMS, Overlay, Details — walking a marketer from “how did my campaign do” to “how did it <em>really</em> do” once you account for people who got hit by both email and SMS. We kept the whole thing in a strict monochrome palette with Inter as the only font, because when you’re showing someone data about <em>why their SMS numbers were softer than expected</em>, this is not the moment for a confetti color scheme.</p>
+          </div>
+
+          <figure class="mt-8">
+            <div class="card">
+              <div role="tablist" aria-label="Multichannel campaign report tabs" class="flex flex-wrap gap-1">
+                <button type="button" class="tab-btn rounded-lg px-3 py-2 text-sm font-semibold text-zinc-400" role="tab" id="rtab-overview" aria-controls="rpanel" aria-selected="true" data-note="Did the campaign work? One number, no hedging.">Overview</button>
+                <button type="button" class="tab-btn rounded-lg px-3 py-2 text-sm font-semibold text-zinc-400" role="tab" id="rtab-email" aria-controls="rpanel" aria-selected="false" data-note="Opens, clicks, and the unsubscribes nobody wants to scroll to.">Email</button>
+                <button type="button" class="tab-btn rounded-lg px-3 py-2 text-sm font-semibold text-zinc-400" role="tab" id="rtab-sms" aria-controls="rpanel" aria-selected="false" data-note="Delivered, clicked, and softer than expected.">SMS</button>
+                <button type="button" class="tab-btn rounded-lg px-3 py-2 text-sm font-semibold text-zinc-400" role="tab" id="rtab-overlay" aria-controls="rpanel" aria-selected="false" data-note="The people who got hit by both. This is the tab that changes minds.">Overlay</button>
+                <button type="button" class="tab-btn rounded-lg px-3 py-2 text-sm font-semibold text-zinc-400" role="tab" id="rtab-details" aria-controls="rpanel" aria-selected="false" data-note="Every send, every timestamp, for when someone asks “are you sure?”">Details</button>
+              </div>
+              <div id="rpanel" role="tabpanel" aria-labelledby="rtab-overview" class="mt-4 border-t border-white/10 pt-4">
+                <p id="rpanel-note" class="text-sm text-zinc-300" aria-live="polite">Did the campaign work? One number, no hedging.</p>
+              </div>
+            </div>
+            <figcaption class="figure-note">Monochrome on purpose. Inter only, no accent colors — softer-than-expected numbers do not need confetti.</figcaption>
+          </figure>
+
+          <div class="prose mt-8">
+            <p>The wizard side is where things got feral. Picture the audience-selection step of the campaign builder trying to display <strong>seven</strong> different chip groups at once — Segments, Tables, Lists, plus Suppress Lists, Suppress Journeys, Suppress Segments, and Suppress Secure Lists — like a group project where everyone insists on presenting their slide. The old solution was a “+10 more / −10 less” paginator, which is the UX equivalent of reading a phone book ten digits at a time. I proposed collapsing it down to “+X more ▼” showing the first three items, because marketers building a campaign at 4:45pm on a Friday do not need to audit their entire suppression architecture chip by chip. They need to hit send and go home.</p>
+          </div>
+
+          <figure class="mt-8">
+            <div class="grid gap-4 lg:grid-cols-2">
+              <div class="card card-lg">
+                <p class="text-xs font-semibold uppercase tracking-wider text-rose-300">Before</p>
+                <h3 class="mt-1 text-xl font-semibold">+10 more / −10 less</h3>
+                <p class="mt-2 text-sm text-zinc-400">Ten chips at a time, forever, across seven groups.</p>
+                <div class="mt-4 chip-wall" aria-hidden="true">
+                  <span class="chip">Black Friday 2026</span>
+                  <span class="chip">Lapsed 90d</span>
+                  <span class="chip">VIP tier</span>
+                  <span class="chip">Cart abandoners</span>
+                  <span class="chip">NZ subscribers</span>
+                  <span class="chip">AU subscribers</span>
+                  <span class="chip">Loyalty · gold</span>
+                  <span class="chip">Loyalty · silver</span>
+                  <span class="chip chip-suppress">Suppress · bounced</span>
+                  <span class="chip chip-suppress">Suppress · complained</span>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span class="btn-quiet">+10 more</span>
+                  <span class="btn-quiet">−10 less</span>
+                </div>
+              </div>
+              <div class="card card-lg">
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-300">After</p>
+                <h3 class="mt-1 text-xl font-semibold">+X more ▼</h3>
+                <p class="mt-2 text-sm text-zinc-400">First three, then get out of the way.</p>
+                <div class="mt-4 chip-wall">
+                  <span class="chip">Black Friday 2026</span>
+                  <span class="chip">Lapsed 90d</span>
+                  <span class="chip">VIP tier</span>
+                  <span class="chip hidden" data-extra-chip>Cart abandoners</span>
+                  <span class="chip hidden" data-extra-chip>NZ subscribers</span>
+                  <span class="chip hidden" data-extra-chip>AU subscribers</span>
+                  <span class="chip hidden" data-extra-chip>Loyalty · gold</span>
+                  <span class="chip hidden" data-extra-chip>Loyalty · silver</span>
+                  <span class="chip chip-suppress hidden" data-extra-chip>Suppress · bounced</span>
+                  <span class="chip chip-suppress hidden" data-extra-chip>Suppress · complained</span>
+                  <button type="button" class="chip-toggle" id="chip-toggle" aria-expanded="false">+7 more ▼</button>
+                </div>
+                <p class="mt-4 text-sm text-zinc-400">One tap if you genuinely need the full suppression architecture. Otherwise, hit send and go home.</p>
+              </div>
+            </div>
+            <figcaption class="figure-note">The right-hand chip group is interactive — expand it if you are the kind of person who audits suppression lists on a Friday.</figcaption>
+          </figure>
+        </section>
+
+        <section id="marketing-contacts" class="scroll-mt-28">
+          <h2 class="article-h2">Marketing Contacts: Teaching an Old Paywall New Tricks</h2>
+          <div class="prose mt-5">
+            <p>And finally, Marketing Contacts — our answer to “wait, how many people are we actually paying to email?” We’re introducing a Monthly Active Marketing Contacts model, which if you squint is basically doing what HubSpot did, except we get to have opinions about it now too.</p>
+            <p>The tricky part wasn’t the pricing logic, it was slotting a genuinely new concept into an existing paywall that already had a whole personality — plan cards, feature lists, a well-worn path to Chargebee for payment. It’s less “build a new room” and more “convince the load-bearing wall it wants a new window.” So far the wall is cooperating. Mostly.</p>
+          </div>
+
+          <figure class="mt-8">
+            <div class="card card-lg max-w-md">
+              <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Marketing Cloud</p>
+              <h3 class="mt-1 text-xl font-semibold">Growth plan</h3>
+              <div class="mt-4">
+                <div class="plan-row"><span class="text-zinc-300">Active Profiles</span><span class="font-mono text-sm">250,000</span></div>
+                <div class="plan-row is-new">
+                  <span class="flex flex-wrap items-center gap-2">
+                    <span class="font-semibold">Monthly Active Marketing Contacts</span>
+                    <span class="inline-flex rounded-full border border-indigo-400/30 bg-indigo-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-200">New</span>
+                  </span>
+                  <span class="font-mono text-sm">48,120</span>
+                </div>
+                <div class="plan-row"><span class="text-zinc-300">Email sends</span><span class="font-mono text-sm">Unlimited</span></div>
+                <div class="plan-row"><span class="text-zinc-300">Billing</span><span class="font-mono text-sm">Chargebee</span></div>
+              </div>
+            </div>
+            <figcaption class="figure-note">The new window in the load-bearing wall. Same plan card, same path to payment, one genuinely new number.</figcaption>
+          </figure>
+        </section>
+
+        <section id="moral" class="scroll-mt-28">
+          <h2 class="article-h2">The Actual Moral</h2>
+          <div class="prose mt-5">
+            <p>If there’s a theme across billing, wizards, and contact math, it’s that the least visible parts of a product are the ones people feel the most — a downgrade button, a chip that won’t stop multiplying, a number that suddenly determines your bill. I don’t get to make any of it <em>fun</em>, exactly. But I can make it make sense, and honestly, at this point, I’ll take “made sense” as a personal win.</p>
+          </div>
+
+          <div class="takeaway mt-8">
+            <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Core takeaway</p>
+            <p class="mt-2 text-xl font-semibold">The least visible parts of a product are the ones people feel the most.</p>
+          </div>
+        </section>
+      </article>
+    </main>
+  </div>
+
+  <footer class="border-t border-white/10 px-4 py-8 text-center text-sm text-zinc-500">
+    <p>A personal design note by Mishthi. Product details are described from a designer’s point of view and are not official Maropost documentation.</p>
+    <p class="mt-2"><a class="chapter-link inline-flex" href="../index.html">Back to the Git &amp; Vercel tutorial</a></p>
+  </footer>
+
+  <script>
+    (function () {
+      const THEME_KEY = 'pizza-theme';
+
+      function currentTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      }
+
+      function syncThemeToggle() {
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        const isDark = currentTheme() === 'dark';
+        btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        btn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+        const label = btn.querySelector('.theme-label');
+        if (label) label.textContent = isDark ? 'Light' : 'Dark';
+      }
+
+      function setTheme(theme) {
+        const next = theme === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+        syncThemeToggle();
+      }
+
+      syncThemeToggle();
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+          setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+        });
+      }
+
+      const reportTabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"][aria-controls="rpanel"]'));
+      const reportNote = document.getElementById('rpanel-note');
+      const reportPanel = document.getElementById('rpanel');
+
+      function selectTab(tab) {
+        reportTabs.forEach(function (other) {
+          other.setAttribute('aria-selected', other === tab ? 'true' : 'false');
+        });
+        if (reportNote) reportNote.textContent = tab.getAttribute('data-note') || '';
+        if (reportPanel) reportPanel.setAttribute('aria-labelledby', tab.id);
+      }
+
+      reportTabs.forEach(function (tab, index) {
+        tab.addEventListener('click', function () { selectTab(tab); });
+        tab.addEventListener('keydown', function (event) {
+          if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+          event.preventDefault();
+          const offset = event.key === 'ArrowRight' ? 1 : -1;
+          const next = reportTabs[(index + offset + reportTabs.length) % reportTabs.length];
+          next.focus();
+          selectTab(next);
+        });
+      });
+
+      const chipToggle = document.getElementById('chip-toggle');
+      if (chipToggle) {
+        const extras = Array.prototype.slice.call(document.querySelectorAll('[data-extra-chip]'));
+        chipToggle.addEventListener('click', function () {
+          const expanded = chipToggle.getAttribute('aria-expanded') === 'true';
+          extras.forEach(function (chip) { chip.classList.toggle('hidden', expanded); });
+          chipToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+          chipToggle.textContent = expanded ? '+7 more ▼' : 'Show less ▲';
+        });
+      }
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    })();
+  </script>
+</body>
+</html>
